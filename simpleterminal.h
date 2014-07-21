@@ -2,6 +2,7 @@
 #define SIMPLETERMINAL_H
 
 #include <QObject>
+#include <QtDebug>
 
 class SimpleTerminal : public QObject
 {
@@ -12,6 +13,10 @@ public:
 signals:
 
 public slots:
+    void write(const QString &msg)
+    {
+        qDebug() << "Console write: " << msg;
+    }
 
 };
 
