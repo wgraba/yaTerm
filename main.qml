@@ -56,8 +56,16 @@ ApplicationWindow {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: parent.bottom
-        Keys.onEnterPressed: root.enterPressed(text)
-        Keys.onReturnPressed: root.enterPressed(text)
+        Keys.onEnterPressed: {
+            root.enterPressed(text)
+            text = ""
+        }
+        Keys.onReturnPressed: {
+            root.enterPressed(text)
+            text = ""
+        }
+
+        focus: true
     }
 
     TextArea {
