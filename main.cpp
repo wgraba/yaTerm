@@ -1,5 +1,6 @@
 #include <QApplication>
 #include <QQmlApplicationEngine>
+#include <QQmlContext>
 
 #include "simpleterminal.h"
 
@@ -12,13 +13,15 @@ int main(int argc, char *argv[])
 
 
     QQmlApplicationEngine engine;
-    engine.load(QUrl(QStringLiteral("qrc:///main.qml")));
 
 //    QList<QObject *> list = engine.children();
 //    QObject *item = engine.findChild<QObject *>("root");
+    SimpleTerminal simpleTerminal(&app);
+    engine.rootContext()->setContextProperty("SimpleTerminal", &simpleTerminal);
+
+    engine.load(QUrl(QStringLiteral("qrc:///main.qml")));
     QObject *item = engine.rootObjects().value(0);
-    SimpleTerminal simpleTerminal;
-    QObject::connect(item, SIGNAL(enterPressed(QString)), &simpleTerminal, SLOT(write(QString)));
+    QObject::connect(item, SIGNAL(consoleInputEntered(QString)), &simpleTerminal, SLOT(write(QString)));
 
     return app.exec();
 }

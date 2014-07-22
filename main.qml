@@ -9,7 +9,11 @@ ApplicationWindow {
     height: 480
     title: qsTr(Qt.application.name)
 
-    signal enterPressed(string msg)
+    signal consoleInputEntered(string msg)
+    function inputEntered() {
+        consoleInputEntered(consoleInput.text)
+        consoleInput.text = ""
+    }
 
     menuBar: MenuBar {
         id: menu
@@ -46,7 +50,7 @@ ApplicationWindow {
     statusBar: StatusBar {
         id: status
         RowLayout {
-            Label { text: "Future spot for settings ..." }
+            Label { text: SimpleTerminal.statusText }
         }
     }
 
@@ -56,15 +60,11 @@ ApplicationWindow {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: parent.bottom
-        Keys.onEnterPressed: {
-            root.enterPressed(text)
-            text = ""
-        }
-        Keys.onReturnPressed: {
-            root.enterPressed(text)
-            text = ""
-        }
 
+        Keys.onEnterPressed: root.inputEntered()
+        Keys.onReturnPressed: root.inputEntered()
+
+        KeyNavigation.tab: consoleOutput
         focus: true
     }
 
@@ -74,6 +74,12 @@ ApplicationWindow {
         anchors.right: parent.right
         anchors.bottom: consoleInput.top
         anchors.top: parent.top
+
+        KeyNavigation.tab: consoleInput
+
+        text: SimpleTerminal.displayText
         readOnly: true
+        textFormat: TextEdit.RichText
+
     }
 }
