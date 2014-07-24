@@ -6,9 +6,13 @@ SimpleTerminal::SimpleTerminal(QObject *parent) :
     QObject(parent),
     _displayText(QString()),
     _statusText(QString()),
-    _port(new QSerialPort(this))
+    _port(new QSerialPort(this)),
+    _eom("\n\r"),
+    _portName(QString())
 {
     QObject::connect(_port, SIGNAL(readyRead()), this, SLOT(read()));
+
+    setStatusText("Disconnected");
 }
 
 SimpleTerminal::~SimpleTerminal()
@@ -37,10 +41,27 @@ QString SimpleTerminal::statusText() const
     return _statusText;
 }
 
+void SimpleTerminal::connect()
+{
+    _port->setPortName(_portName);
+    if (_port->open(QIODevice::ReadWrite))
+    {
+        qDebug() << "Connected!";
+        setStatusText("Connected");
+    }
+}
+
+void SimpleTerminal::disconnect()
+{
+    _port->close();
+    qDebug() << "Disconnected";
+    setStatusText("Disconnected");
+}
+
 void SimpleTerminal::write(const QString &msg)
 {
-    qDebug() << "Console write: " << msg;
-    appendDspText("<p><b>" + msg + "</b></p>");
+    qDebug() << "Write: " << msg;
+    appendDspText(msg + "\r");
 }
 
 void SimpleTerminal::read()

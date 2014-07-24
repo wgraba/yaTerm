@@ -22,6 +22,7 @@ public:
     QString statusText() const;
 
     void connect();
+    void disconnect();
     void appendDspText(QString text);
     void clearDspText();
 
@@ -39,6 +40,8 @@ private:
     QString _displayText;
     QString _statusText;
     QSerialPort *_port;
+    QString _eom;
+    QString _portName;
 
 };
 

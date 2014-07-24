@@ -1,6 +1,7 @@
 #include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
+#include <QIcon>
 
 #include "simpleterminal.h"
 
@@ -10,6 +11,7 @@ int main(int argc, char *argv[])
 
     app.setApplicationName("yaTerm");
     app.setApplicationVersion("0.1.0");
+    app.setWindowIcon(QIcon(":/utilities-terminal-icon.png"));
 
 
     QQmlApplicationEngine engine;
