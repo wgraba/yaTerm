@@ -2,6 +2,7 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QIcon>
+#include <QDebug>
 
 #include "simpleterminal.h"
 
@@ -22,8 +23,13 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("SimpleTerminal", &simpleTerminal);
 
     engine.load(QUrl(QStringLiteral("qrc:///main.qml")));
+
     QObject *item = engine.rootObjects().value(0);
+    Q_CHECK_PTR(item);
+
     QObject::connect(item, SIGNAL(consoleInputEntered(QString)), &simpleTerminal, SLOT(write(QString)));
+
+    simpleTerminal.connect();
 
     return app.exec();
 }

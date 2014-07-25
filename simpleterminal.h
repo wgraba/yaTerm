@@ -4,8 +4,7 @@
 #include <QObject>
 #include <QtDebug>
 #include <QString>
-
-class QSerialPort;
+#include <QSerialPort>
 
 class SimpleTerminal : public QObject
 {
@@ -42,6 +41,11 @@ private:
     QSerialPort *_port;
     QString _eom;
     QString _portName;
+    QSerialPort::BaudRate _baudRate;
+    QSerialPort::DataBits _dataBits;
+    QSerialPort::FlowControl _flowControl;
+    QSerialPort::Parity _parity;
+    QSerialPort::StopBits _stopBits;
 
 };
 
