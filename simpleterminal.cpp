@@ -5,10 +5,11 @@
 SimpleTerminal::SimpleTerminal(QObject *parent) :
     QObject(parent),
     _displayText(QString()),
+    _displayRead(false),
     _statusText(QString()),
     _port(new QSerialPort(this)),
-    _eom("\n\r"),
-    _portName(QString("/dev/pts/7")),
+    _eom("\r\n"),
+    _portName(QString("/dev/pts/9")),
     _baudRate(QSerialPort::Baud115200),
     _dataBits(QSerialPort::Data8),
     _flowControl(QSerialPort::NoFlowControl),
@@ -27,13 +28,20 @@ SimpleTerminal::~SimpleTerminal()
 
 void SimpleTerminal::appendDspText(QString text)
 {
-    _displayText += text;
+    int overFill = _displayText.size() + text.size() - MAX_NUM_DISP_CHARS;
+    if (overFill <= 0)  // No over-fill
+        _displayText += text;
+    else
+    {
+        _displayText.remove(0, overFill);
+    }
+
     emit displayTextChanged();
 }
 
 void SimpleTerminal::clearDspText()
 {
-    _displayText = QString();
+    _displayText.clear();
     emit displayTextChanged();
 }
 
@@ -75,25 +83,34 @@ void SimpleTerminal::disconnect()
 
 void SimpleTerminal::write(const QString &msg)
 {
-    qDebug() << "Write:" << msg << QByteArray(msg.toLocal8Bit()).toHex();
-//    QString txMsg = msg + _eom;
-    _port->write((msg + _eom).toLocal8Bit());
-    QChar pre;
-    if (!_displayText.isEmpty())
-    {
-        QChar lastChar = _displayText[_displayText.length() - 1];
-        if (lastChar != '\r' || lastChar != '\n')
-            pre ='\n';
-    }
+    QString txMsg = msg + _eom;
+    qDebug() << "Write:" << txMsg << QByteArray(msg.toLocal8Bit()).toHex();
+    if (_port->isOpen())
+        _port->write((txMsg).toLocal8Bit());
+    else
+        qWarning() << "Port is not open";
 
-    appendDspText(pre + msg + "\n");
+    QString pre;
+    if (_displayRead)
+    {
+        pre = "</samp></p>";
+        _displayRead = false;
+    }
+    appendDspText(pre + "<p><strong><kbd>" + txMsg.toHtmlEscaped() + "</kbd></strong></p>");
 }
 
 void SimpleTerminal::read()
 {
     QByteArray data = _port->readAll();
     qDebug() << "Read:" << data << data.toHex();
-    appendDspText(data);
+
+    QString pre;
+    if (!_displayRead)
+    {
+        pre = "<p><samp>";
+        _displayRead = true;
+    }
+    appendDspText(pre + QString(data).toHtmlEscaped());
 }
 
 void SimpleTerminal::setStatusText(QString text)

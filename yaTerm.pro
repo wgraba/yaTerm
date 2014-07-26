@@ -1,7 +1,8 @@
 TEMPLATE = app
 
 QT += qml quick widgets serialport
-QMAKE_CXXFLAGS += -std=c++11
+CONFIG += c++11
+#QMAKE_CXXFLAGS += -std=c++11
 
 SOURCES += main.cpp \
     simpleterminal.cpp

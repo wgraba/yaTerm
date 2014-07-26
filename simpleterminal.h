@@ -34,9 +34,11 @@ public slots:
     void read();
 
 private:
+    static const int MAX_NUM_DISP_CHARS = 1024 * 16;
     void setStatusText(QString text);
 
     QString _displayText;
+    bool _displayRead;
     QString _statusText;
     QSerialPort *_port;
     QString _eom;

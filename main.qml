@@ -79,7 +79,7 @@ ApplicationWindow {
 
         text: SimpleTerminal.displayText
         readOnly: true
-//        textFormat: TextEdit.RichText
+        textFormat: TextEdit.RichText
 
     }
 }
