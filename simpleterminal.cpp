@@ -9,7 +9,7 @@ SimpleTerminal::SimpleTerminal(QObject *parent) :
     _statusText(QString()),
     _port(new QSerialPort(this)),
     _eom("\r\n"),
-    _portName(QString("/dev/pts/9")),
+    _portName(QString("/dev/pts/1")),
     _baudRate(QSerialPort::Baud115200),
     _dataBits(QSerialPort::Data8),
     _flowControl(QSerialPort::NoFlowControl),
@@ -19,7 +19,7 @@ SimpleTerminal::SimpleTerminal(QObject *parent) :
     Q_CHECK_PTR(_port);
     QObject::connect(_port, SIGNAL(readyRead()), this, SLOT(read()));
 
-    setStatusText("Disconnected");
+    refreshStatusText();
 }
 
 SimpleTerminal::~SimpleTerminal()
@@ -55,6 +55,11 @@ QString SimpleTerminal::statusText() const
     return _statusText;
 }
 
+bool SimpleTerminal::isConnected() const
+{
+    return _port->isOpen();
+}
+
 void SimpleTerminal::connect()
 {
     _port->setPortName(_portName);
@@ -65,8 +70,10 @@ void SimpleTerminal::connect()
     _port->setStopBits(_stopBits);
     if (_port->open(QIODevice::ReadWrite))
     {
+        refreshStatusText();
+        emit connStateChanged();
+
         qDebug() << "Connected!";
-        setStatusText("Connected");
     }
     else
     {
@@ -77,8 +84,10 @@ void SimpleTerminal::connect()
 void SimpleTerminal::disconnect()
 {
     _port->close();
+    refreshStatusText();
+    emit connStateChanged();
+
     qDebug() << "Disconnected";
-    setStatusText("Disconnected");
 }
 
 void SimpleTerminal::write(const QString &msg)
@@ -117,4 +126,16 @@ void SimpleTerminal::setStatusText(QString text)
 {
     _statusText = text;
     emit statusTextChanged();
+}
+
+void SimpleTerminal::refreshStatusText()
+{
+    QString newText;
+    if (isConnected())
+        newText += "<strong>Connected</strong>";
+    else
+        newText += "<strong>Disconnected</strong>";
+
+    setStatusText(newText);
+
 }

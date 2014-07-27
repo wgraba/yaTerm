@@ -12,8 +12,7 @@ int main(int argc, char *argv[])
 
     app.setApplicationName("yaTerm");
     app.setApplicationVersion("0.1.0");
-    app.setWindowIcon(QIcon(":/utilities-terminal-icon.png"));
-
+    app.setWindowIcon(QIcon(":/images/utilities-terminal-icon.png"));
 
     QQmlApplicationEngine engine;
 
@@ -28,8 +27,8 @@ int main(int argc, char *argv[])
     Q_CHECK_PTR(item);
 
     QObject::connect(item, SIGNAL(consoleInputEntered(QString)), &simpleTerminal, SLOT(write(QString)));
-
-    simpleTerminal.connect();
+    QObject::connect(item, SIGNAL(connect()), &simpleTerminal, SLOT(connect()));
+    QObject::connect(item, SIGNAL(disconnect()), &simpleTerminal, SLOT(disconnect()));
 
     return app.exec();
 }

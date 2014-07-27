@@ -11,6 +11,7 @@ class SimpleTerminal : public QObject
     Q_OBJECT
     Q_PROPERTY(QString displayText READ displayText RESET clearDspText NOTIFY displayTextChanged)
     Q_PROPERTY(QString statusText READ statusText NOTIFY statusTextChanged)
+    Q_PROPERTY(bool connState READ isConnected NOTIFY connStateChanged)
 
 
 public:
@@ -19,23 +20,28 @@ public:
 
     QString displayText() const;
     QString statusText() const;
+    bool isConnected() const;
 
-    void connect();
-    void disconnect();
     void appendDspText(QString text);
     void clearDspText();
 
 signals:
     void displayTextChanged();
     void statusTextChanged();
+    void connStateChanged();
 
 public slots:
     void write(const QString &msg);
     void read();
 
+    void connect();
+    void disconnect();
+
 private:
     static const int MAX_NUM_DISP_CHARS = 1024 * 16;
+
     void setStatusText(QString text);
+    void refreshStatusText();
 
     QString _displayText;
     bool _displayRead;

@@ -1,15 +1,18 @@
 import QtQuick 2.2
 import QtQuick.Controls 1.2
 import QtQuick.Layouts 1.1
+import QtQuick.Dialogs 1.2
 
 ApplicationWindow {
     id: root
     visible: true
     width: 640
     height: 480
-    title: qsTr(Qt.application.name)
+    title: Qt.application.name
 
     signal consoleInputEntered(string msg)
+    signal connect();
+    signal disconnect();
     function inputEntered() {
         consoleInputEntered(consoleInput.text)
         consoleInput.text = ""
@@ -22,10 +25,14 @@ ApplicationWindow {
 
             MenuItem {
                 text: qsTr("&Connect")
+                enabled: !SimpleTerminal.connState
+                onTriggered: root.connect()
             }
 
             MenuItem {
                 text: qsTr("&Disconnect")
+                enabled: SimpleTerminal.connState
+                onTriggered: root.disconnect()
             }
 
             MenuItem {
@@ -39,10 +46,11 @@ ApplicationWindow {
         }
 
         Menu {
-            title: qsTr("&About")
+            title: qsTr("&Help")
 
             MenuItem {
-                text: qsTr("&" + Qt.application.name)
+                text: qsTr("&About")
+                onTriggered: aboutDialog.open()
             }
         }
     }
@@ -50,7 +58,7 @@ ApplicationWindow {
     statusBar: StatusBar {
         id: status
         RowLayout {
-            Label { text: SimpleTerminal.statusText }
+            Label { text: qsTr(SimpleTerminal.statusText) }
         }
     }
 
@@ -82,4 +90,18 @@ ApplicationWindow {
         textFormat: TextEdit.RichText
 
     }
+
+    MessageDialog {
+        id: aboutDialog
+        icon: StandardIcon.Information
+        modality: Qt.ApplicationModal
+        text: { "<p><strong>y</strong>et <strong>a</strong>nother Serial <strong>Term</strong>inal " +
+                Qt.application.version +
+                "<p><em>by Wesley Graba</em></p>" +
+                "<p>The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, " +
+                "MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.</p>" }
+        title: "About " + Qt.application.name
+    }
 }
+
+
