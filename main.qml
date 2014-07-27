@@ -37,6 +37,7 @@ ApplicationWindow {
 
             MenuItem {
                 text: qsTr("&Settings")
+                onTriggered: settingsDialog.open()
             }
 
             MenuItem {
@@ -101,6 +102,52 @@ ApplicationWindow {
                 "<p>The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, " +
                 "MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.</p>" }
         title: "About " + Qt.application.name
+    }
+
+    Dialog {
+        id: settingsDialog
+        modality: Qt.WindowModal
+        standardButtons: StandardButton.Apply | StandardButton.Cancel
+        title: "Settings"
+
+        GridLayout {
+            id: settingsLayout
+            columns: 2
+
+//            anchors.fill: parent
+//            anchors.centerIn: settingsDialog
+//            anchors.right: parent.right
+//            width: parent.width * 1
+
+            Label { text: "<strong>Port</strong>" }
+            ComboBox {
+                id: portCombo
+            }
+
+            Label { text: "<strong>Baud Rate</strong>" }
+            ComboBox {
+                id: baudRateCombo
+                model: [1200, 2400, 9600, 19200, 38400, 57600, 115200]
+            }
+
+            Label { text: "<strong>Data Bits</strong>" }
+            ComboBox {
+                id: dataBitsCombo
+                model: [5, 6, 7, 8]
+            }
+
+            Label { text: "<strong>Parity</strong>" }
+            ComboBox {
+                id: parityCombo
+                model: ["None", "Even", "Odd"]
+            }
+
+            Label { text: "<strong>Flow Control</strong>" }
+            ComboBox {
+                id: flowCombo
+                model: ["None", "Hardware", "Software"]
+            }
+        }
     }
 }
 
