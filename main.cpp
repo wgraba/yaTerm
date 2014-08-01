@@ -1,10 +1,11 @@
+#include "simpleterminal.h"
+#include "portslistmodel.h"
+
 #include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QIcon>
 #include <QDebug>
-
-#include "simpleterminal.h"
 
 int main(int argc, char *argv[])
 {
@@ -18,8 +19,10 @@ int main(int argc, char *argv[])
 
 //    QList<QObject *> list = engine.children();
 //    QObject *item = engine.findChild<QObject *>("root");
-    SimpleTerminal simpleTerminal(&app);
+    PortsListModel myModel;
+    SimpleTerminal simpleTerminal(&myModel, &app);
     engine.rootContext()->setContextProperty("SimpleTerminal", &simpleTerminal);
+    engine.rootContext()->setContextProperty("myModel", &myModel);
 
     engine.load(QUrl(QStringLiteral("qrc:///main.qml")));
 
@@ -29,6 +32,8 @@ int main(int argc, char *argv[])
     QObject::connect(item, SIGNAL(consoleInputEntered(QString)), &simpleTerminal, SLOT(write(QString)));
     QObject::connect(item, SIGNAL(connect()), &simpleTerminal, SLOT(connect()));
     QObject::connect(item, SIGNAL(disconnect()), &simpleTerminal, SLOT(disconnect()));
+    QObject::connect(item, SIGNAL(newSettings(QString)), &simpleTerminal, SLOT(setSettings(QString)));
 
     return app.exec();
 }
+

@@ -5,7 +5,8 @@ CONFIG += c++11
 #QMAKE_CXXFLAGS += -std=c++11
 
 SOURCES += main.cpp \
-    simpleterminal.cpp
+    simpleterminal.cpp \
+    portslistmodel.cpp
 
 RESOURCES += qml.qrc
 
@@ -16,4 +17,5 @@ QML_IMPORT_PATH =
 include(deployment.pri)
 
 HEADERS += \
-    simpleterminal.h
+    simpleterminal.h \
+    portslistmodel.h

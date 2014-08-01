@@ -13,6 +13,7 @@ ApplicationWindow {
     signal consoleInputEntered(string msg)
     signal connect();
     signal disconnect();
+    signal newSettings(string port);
     function inputEntered() {
         consoleInputEntered(consoleInput.text)
         consoleInput.text = ""
@@ -101,51 +102,61 @@ ApplicationWindow {
                 "<p><em>by Wesley Graba</em></p>" +
                 "<p>The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, " +
                 "MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.</p>" }
-        title: "About " + Qt.application.name
+        title: qsTr("About ") + Qt.application.name
     }
 
     Dialog {
         id: settingsDialog
         modality: Qt.WindowModal
         standardButtons: StandardButton.Apply | StandardButton.Cancel
-        title: "Settings"
+        title: qsTr("Settings")
+        width: settingsLayout.width + 50
+
+        onApply: newSettings(portCombo.currentText)
 
         GridLayout {
             id: settingsLayout
             columns: 2
 
-//            anchors.fill: parent
-//            anchors.centerIn: settingsDialog
-//            anchors.right: parent.right
-//            width: parent.width * 1
-
             Label { text: "<strong>Port</strong>" }
             ComboBox {
                 id: portCombo
+                model: myModel
             }
 
             Label { text: "<strong>Baud Rate</strong>" }
             ComboBox {
                 id: baudRateCombo
                 model: [1200, 2400, 9600, 19200, 38400, 57600, 115200]
+                currentIndex: 6
             }
 
             Label { text: "<strong>Data Bits</strong>" }
             ComboBox {
                 id: dataBitsCombo
                 model: [5, 6, 7, 8]
+                currentIndex: 3
             }
 
             Label { text: "<strong>Parity</strong>" }
             ComboBox {
                 id: parityCombo
                 model: ["None", "Even", "Odd"]
+                currentIndex: 0
+            }
+
+            Label { text: "<strong>Stop Bits</strong>" }
+            ComboBox {
+                id: stopCombo
+                model: [1, 1.5, 2]
+                currentIndex: 0
             }
 
             Label { text: "<strong>Flow Control</strong>" }
             ComboBox {
                 id: flowCombo
                 model: ["None", "Hardware", "Software"]
+                currentIndex: 0
             }
         }
     }

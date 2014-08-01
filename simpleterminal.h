@@ -6,6 +6,8 @@
 #include <QString>
 #include <QSerialPort>
 
+class PortsListModel;
+
 class SimpleTerminal : public QObject
 {
     Q_OBJECT
@@ -13,9 +15,8 @@ class SimpleTerminal : public QObject
     Q_PROPERTY(QString statusText READ statusText NOTIFY statusTextChanged)
     Q_PROPERTY(bool connState READ isConnected NOTIFY connStateChanged)
 
-
 public:
-    explicit SimpleTerminal(QObject *parent = 0);
+    explicit SimpleTerminal(PortsListModel *portsList, QObject *parent = 0);
     ~SimpleTerminal();
 
     QString displayText() const;
@@ -24,6 +25,7 @@ public:
 
     void appendDspText(QString text);
     void clearDspText();
+    void generatePortList();
 
 signals:
     void displayTextChanged();
@@ -36,6 +38,8 @@ public slots:
 
     void connect();
     void disconnect();
+
+    void setSettings(QString port);
 
 private:
     static const int MAX_NUM_DISP_CHARS = 1024 * 16;
@@ -54,6 +58,8 @@ private:
     QSerialPort::FlowControl _flowControl;
     QSerialPort::Parity _parity;
     QSerialPort::StopBits _stopBits;
+
+    PortsListModel *_availablePorts;
 
 };
 

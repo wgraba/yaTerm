@@ -1,23 +1,32 @@
-#include <QSerialPort>
-
 #include "simpleterminal.h"
+#include "portslistmodel.h"
 
-SimpleTerminal::SimpleTerminal(QObject *parent) :
+#include <QSerialPort>
+#include <QSerialPortInfo>
+
+
+SimpleTerminal::SimpleTerminal(PortsListModel *portsList, QObject *parent) :
     QObject(parent),
     _displayText(QString()),
     _displayRead(false),
     _statusText(QString()),
     _port(new QSerialPort(this)),
     _eom("\r\n"),
-    _portName(QString("/dev/pts/1")),
+    _portName(QString()),
     _baudRate(QSerialPort::Baud115200),
     _dataBits(QSerialPort::Data8),
     _flowControl(QSerialPort::NoFlowControl),
     _parity(QSerialPort::NoParity),
-    _stopBits(QSerialPort::OneStop)
+    _stopBits(QSerialPort::OneStop),
+    _availablePorts(portsList)
 {
     Q_CHECK_PTR(_port);
+    Q_CHECK_PTR(_availablePorts);
+
     QObject::connect(_port, SIGNAL(readyRead()), this, SLOT(read()));
+
+    generatePortList();
+    _portName = _availablePorts->getStringList().count() > 0 ? _availablePorts->getStringList()[0] : "";
 
     refreshStatusText();
 }
@@ -43,6 +52,24 @@ void SimpleTerminal::clearDspText()
 {
     _displayText.clear();
     emit displayTextChanged();
+}
+
+void SimpleTerminal::generatePortList()
+{
+    QStringList ports;
+    foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts())
+    {
+        ports << info.portName();
+    }
+    _availablePorts->setStringList(ports);
+}
+
+void SimpleTerminal::setSettings(QString port)
+{
+    _portName = port;
+    qDebug() << "Port set to " << _portName;
+
+    refreshStatusText();
 }
 
 QString SimpleTerminal::displayText() const
@@ -135,6 +162,8 @@ void SimpleTerminal::refreshStatusText()
         newText += "<strong>Connected</strong>";
     else
         newText += "<strong>Disconnected</strong>";
+
+    newText += " - " + _portName;
 
     setStatusText(newText);
 
