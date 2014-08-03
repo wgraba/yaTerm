@@ -6,6 +6,7 @@
 #include <QQmlContext>
 #include <QIcon>
 #include <QDebug>
+#include <QList>
 
 int main(int argc, char *argv[])
 {
@@ -19,10 +20,12 @@ int main(int argc, char *argv[])
 
 //    QList<QObject *> list = engine.children();
 //    QObject *item = engine.findChild<QObject *>("root");
-    PortsListModel myModel;
-    SimpleTerminal simpleTerminal(&myModel, &app);
+    PortsListModel portsListModel;
+    QList<qint32> baudRatesModel;
+    SimpleTerminal simpleTerminal(&portsListModel, &baudRatesModel, &app);
     engine.rootContext()->setContextProperty("SimpleTerminal", &simpleTerminal);
-    engine.rootContext()->setContextProperty("myModel", &myModel);
+    engine.rootContext()->setContextProperty("portsListModel", &portsListModel);
+//    engine.rootContext()->setContextProperty("baudRatesModel", QVariant::fromValue(baudRatesModel));
 
     engine.load(QUrl(QStringLiteral("qrc:///main.qml")));
 

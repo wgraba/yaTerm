@@ -121,14 +121,14 @@ ApplicationWindow {
             Label { text: "<strong>Port</strong>" }
             ComboBox {
                 id: portCombo
-                model: myModel
+                model: portsListModel
             }
 
             Label { text: "<strong>Baud Rate</strong>" }
             ComboBox {
                 id: baudRateCombo
                 model: [1200, 2400, 9600, 19200, 38400, 57600, 115200]
-                currentIndex: 6
+//                model: baudRatesModel
             }
 
             Label { text: "<strong>Data Bits</strong>" }

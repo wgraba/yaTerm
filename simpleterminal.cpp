@@ -5,8 +5,10 @@
 #include <QSerialPortInfo>
 
 
-SimpleTerminal::SimpleTerminal(PortsListModel *portsList, QObject *parent) :
+SimpleTerminal::SimpleTerminal(PortsListModel *portsList, QList<qint32> *baudRateList, QObject *parent) :
     QObject(parent),
+    _availablePorts(portsList),
+    _availableBaudRates(baudRateList),
     _displayText(QString()),
     _displayRead(false),
     _statusText(QString()),
@@ -17,16 +19,17 @@ SimpleTerminal::SimpleTerminal(PortsListModel *portsList, QObject *parent) :
     _dataBits(QSerialPort::Data8),
     _flowControl(QSerialPort::NoFlowControl),
     _parity(QSerialPort::NoParity),
-    _stopBits(QSerialPort::OneStop),
-    _availablePorts(portsList)
+    _stopBits(QSerialPort::OneStop)
 {
     Q_CHECK_PTR(_port);
     Q_CHECK_PTR(_availablePorts);
+    Q_CHECK_PTR(_availableBaudRates);
 
     QObject::connect(_port, SIGNAL(readyRead()), this, SLOT(read()));
 
     generatePortList();
     _portName = _availablePorts->getStringList().count() > 0 ? _availablePorts->getStringList()[0] : "";
+    *_availableBaudRates = QSerialPortInfo::standardBaudRates();
 
     refreshStatusText();
 }
