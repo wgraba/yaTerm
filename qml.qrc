@@ -2,7 +2,5 @@
     <qresource prefix="/">
         <file>main.qml</file>
     </qresource>
-    <qresource prefix="/images">
-        <file>utilities-terminal-icon.png</file>
-    </qresource>
+    <qresource prefix="/images"/>
 </RCC>
