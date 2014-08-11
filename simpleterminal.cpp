@@ -29,33 +29,44 @@
 #include <QSerialPortInfo>
 
 
-SimpleTerminal::SimpleTerminal(PortsListModel *portsList, QList<qint32> *baudRateList, QObject *parent) :
+SimpleTerminal::SimpleTerminal(QSerialPort *port, PortsListModel *portsList, QObject *parent) :
     QObject(parent),
     _availablePorts(portsList),
-    _availableBaudRates(baudRateList),
     _displayText(QString()),
     _displayRead(false),
     _statusText(QString()),
-    _port(new QSerialPort(this)),
+    _port(port),
     _eom("\r\n"),
-    _portName(QString()),
-    _baudRate(QSerialPort::Baud115200),
-    _dataBits(QSerialPort::Data8),
-    _flowControl(QSerialPort::NoFlowControl),
-    _parity(QSerialPort::NoParity),
-    _stopBits(QSerialPort::OneStop)
+    _portName(QString())
 {
     Q_CHECK_PTR(_port);
     Q_CHECK_PTR(_availablePorts);
-    Q_CHECK_PTR(_availableBaudRates);
-
-    QObject::connect(_port, SIGNAL(readyRead()), this, SLOT(read()));
 
     generatePortList();
-    _portName = _availablePorts->getStringList().count() > 0 ? _availablePorts->getStringList()[0] : "";
-    *_availableBaudRates = QSerialPortInfo::standardBaudRates();
+    if (_availablePorts->getStringList().count() <= 0)
+    {
+        _portName = "";
+        _port->setBaudRate(QSerialPort::Baud115200);
+        _port->setDataBits(QSerialPort::Data8);
+        _port->setParity(QSerialPort::NoParity);
+        _port->setStopBits(QSerialPort::OneStop);
+        _port->setFlowControl(QSerialPort::NoFlowControl);
+    }
+    else
+    {
+        _portName = _availablePorts->getStringList()[0];
+    }
 
     refreshStatusText();
+
+    QObject::connect(_port, SIGNAL(readyRead()), this, SLOT(read()));
+    QObject::connect(_port, SIGNAL(baudRateChanged(qint32,QSerialPort::Directions)), this, SLOT(refreshStatusText()));
+    QObject::connect(_port, SIGNAL(dataBitsChanged(QSerialPort::DataBits)), this, SLOT(refreshStatusText()));
+    QObject::connect(_port, SIGNAL(flowControlChanged(QSerialPort::FlowControl)), this, SLOT(refreshStatusText()));
+    QObject::connect(_port, SIGNAL(parityChanged(QSerialPort::Parity)), this, SLOT(refreshStatusText()));
+    QObject::connect(_port, SIGNAL(stopBitsChanged(QSerialPort::StopBits)), this, SLOT(refreshStatusText()));
+
+
 }
 
 SimpleTerminal::~SimpleTerminal()
@@ -91,7 +102,7 @@ void SimpleTerminal::generatePortList()
     _availablePorts->setStringList(ports);
 }
 
-void SimpleTerminal::setSettings(QString port)
+void SimpleTerminal::setPort(QString port)
 {
     _portName = port;
     qDebug() << "Port set to " << _portName;
@@ -117,11 +128,6 @@ bool SimpleTerminal::isConnected() const
 void SimpleTerminal::connect()
 {
     _port->setPortName(_portName);
-    _port->setBaudRate(_baudRate);
-    _port->setDataBits(_dataBits);
-    _port->setFlowControl(_flowControl);
-    _port->setParity(_parity);
-    _port->setStopBits(_stopBits);
     if (_port->open(QIODevice::ReadWrite))
     {
         refreshStatusText();
@@ -190,7 +196,95 @@ void SimpleTerminal::refreshStatusText()
     else
         newText += "<strong>Disconnected</strong>";
 
-    newText += " - " + _portName;
+    newText += " " + (_portName == "" ? "None" : _portName);
+
+    QString dataBits = "-";
+    switch (_port->dataBits())
+    {
+        case QSerialPort::Data5:
+            dataBits = "5";
+            break;
+
+        case QSerialPort::Data6:
+            dataBits = "6";
+            break;
+
+        case QSerialPort::Data7:
+            dataBits = "7";
+            break;
+
+        case QSerialPort::Data8:
+            dataBits = "8";
+            break;
+
+        default:
+            dataBits = "-";
+            break;
+    }
+
+    QString parity = "-";
+    switch (_port->parity())
+    {
+        case QSerialPort::NoParity:
+            parity = "N";
+            break;
+
+        case QSerialPort::EvenParity:
+            parity = "E";
+            break;
+
+        case QSerialPort::OddParity:
+            parity = "O";
+            break;
+
+        default:
+            parity = "-";
+            break;
+    }
+
+    QString stopBits = "-";
+    switch (_port->stopBits())
+    {
+        case QSerialPort::OneStop:
+            stopBits = "1";
+            break;
+
+        case QSerialPort::OneAndHalfStop:
+            stopBits = "1.5";
+            break;
+
+        case QSerialPort::TwoStop:
+            stopBits = "2";
+            break;
+
+        default:
+            stopBits = '-';
+            break;
+    }
+
+    newText += " " + dataBits + parity + stopBits;
+
+    QString flowControl = "Unknown";
+    switch (_port->flowControl())
+    {
+        case QSerialPort::HardwareControl:
+            flowControl = "Hardware";
+            break;
+
+        case QSerialPort::SoftwareControl:
+            flowControl = "Software";
+            break;
+
+        case QSerialPort::NoFlowControl:
+            flowControl = "None";
+            break;
+
+        default:
+            flowControl = "Unknown";
+            break;
+    }
+
+    newText += " " + flowControl;
 
     setStatusText(newText);
 

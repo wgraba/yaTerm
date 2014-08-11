@@ -28,6 +28,7 @@
 #include <QAbstractListModel>
 #include <QStringList>
 
+//*****************************************************************************
 class PortsListModel : public QAbstractListModel
 {
     Q_OBJECT

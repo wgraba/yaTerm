@@ -31,7 +31,9 @@
 #include <QIcon>
 #include <QDebug>
 #include <QList>
+#include <QSerialPort>
 
+//*****************************************************************************
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
@@ -45,21 +47,23 @@ int main(int argc, char *argv[])
 //    QList<QObject *> list = engine.children();
 //    QObject *item = engine.findChild<QObject *>("root");
     PortsListModel portsListModel;
-    QList<qint32> baudRatesModel;
-    SimpleTerminal simpleTerminal(&portsListModel, &baudRatesModel, &app);
-    engine.rootContext()->setContextProperty("SimpleTerminal", &simpleTerminal);
+
+    QSerialPort serialPort;
+    SimpleTerminal *simpleTerminal = new SimpleTerminal(&serialPort, &portsListModel, &app);
+
+    engine.rootContext()->setContextProperty("serialPort", &serialPort);
+    engine.rootContext()->setContextProperty("simpleTerminal", simpleTerminal);
     engine.rootContext()->setContextProperty("portsListModel", &portsListModel);
-//    engine.rootContext()->setContextProperty("baudRatesModel", QVariant::fromValue(baudRatesModel));
 
     engine.load(QUrl(QStringLiteral("qrc:///main.qml")));
 
     QObject *item = engine.rootObjects().value(0);
     Q_CHECK_PTR(item);
 
-    QObject::connect(item, SIGNAL(consoleInputEntered(QString)), &simpleTerminal, SLOT(write(QString)));
-    QObject::connect(item, SIGNAL(connect()), &simpleTerminal, SLOT(connect()));
-    QObject::connect(item, SIGNAL(disconnect()), &simpleTerminal, SLOT(disconnect()));
-    QObject::connect(item, SIGNAL(newSettings(QString)), &simpleTerminal, SLOT(setSettings(QString)));
+    QObject::connect(item, SIGNAL(consoleInputEntered(QString)), simpleTerminal, SLOT(write(QString)));
+    QObject::connect(item, SIGNAL(connect()), simpleTerminal, SLOT(connect()));
+    QObject::connect(item, SIGNAL(disconnect()), simpleTerminal, SLOT(disconnect()));
+    QObject::connect(item, SIGNAL(newPort(QString)), simpleTerminal, SLOT(setPort(QString)));
 
     return app.exec();
 }

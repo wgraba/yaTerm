@@ -37,7 +37,8 @@ ApplicationWindow {
     signal consoleInputEntered(string msg)
     signal connect();
     signal disconnect();
-    signal newSettings(string port);
+    signal newPort(string port);
+
     function inputEntered() {
         consoleInputEntered(consoleInput.text)
         consoleInput.text = ""
@@ -50,19 +51,20 @@ ApplicationWindow {
 
             MenuItem {
                 text: qsTr("&Connect")
-                enabled: !SimpleTerminal.connState
+                enabled: !simpleTerminal.connState
                 onTriggered: root.connect()
             }
 
             MenuItem {
                 text: qsTr("&Disconnect")
-                enabled: SimpleTerminal.connState
+                enabled: simpleTerminal.connState
                 onTriggered: root.disconnect()
             }
 
             MenuItem {
                 text: qsTr("&Settings")
                 onTriggered: settingsDialog.open()
+                enabled: !simpleTerminal.connState
             }
 
             MenuItem {
@@ -84,7 +86,7 @@ ApplicationWindow {
     statusBar: StatusBar {
         id: status
         RowLayout {
-            Label { text: qsTr(SimpleTerminal.statusText) }
+            Label { text: qsTr(simpleTerminal.statusText) }
         }
     }
 
@@ -111,7 +113,7 @@ ApplicationWindow {
 
         KeyNavigation.tab: consoleInput
 
-        text: SimpleTerminal.displayText
+        text: simpleTerminal.displayText
         readOnly: true
         textFormat: TextEdit.RichText
 
@@ -136,7 +138,197 @@ ApplicationWindow {
         title: qsTr("Settings")
         width: settingsLayout.width + 50
 
-        onApply: newSettings(portCombo.currentText)
+        onVisibleChanged: {
+            if (visible) {
+
+                // Baud Rate
+                console.log("Current baud rate: ", serialPort.baudRate)
+                switch (serialPort.baudRate) {
+                    case 1200:
+                    default:
+                        baudRateCombo.currentIndex = 0
+                        break
+
+                    case 2400:
+                        baudRateCombo.currentIndex = 1
+                        break
+
+                    case 9600:
+                        baudRateCombo.currentIndex = 2
+                        break
+
+                    case 19200:
+                        baudRateCombo.currentIndex = 3
+                        break
+
+                    case 38400:
+                        baudRateCombo.currentIndex = 4
+                        break
+
+                    case 57600:
+                        baudRateCombo.currentIndex = 5
+                        break
+
+                    case 115200:
+                        baudRateCombo.currentIndex = 6
+                        break
+
+                }
+
+                // Data Bits
+                console.log("Current data bits: " + serialPort.dataBits)
+                switch (serialPort.dataBits)
+                {
+                    default:
+                    case 5:
+                        dataBitsCombo.currentIndex = 0
+                        break
+
+                    case 6:
+                        dataBitsCombo.currentIndex = 1
+                        break;
+
+                    case 7:
+                        dataBitsCombo.currentIndex = 2
+                        break
+
+                    case 8:
+                        dataBitsCombo.currentIndex = 3
+                        break
+                }
+
+                // Parity
+                console.log("Parity: " + serialPort.parity)
+                switch (serialPort.parity)
+                {
+                    default:
+                    case 0:
+                        parityCombo.currentIndex = 0
+                        break
+
+                    case 2:
+                        parityCombo.currentIndex = 1
+                        break
+
+                    case 3:
+                        parityCombo.currentIndex = 2
+                        break
+
+                }
+
+                // Stop bits
+                console.log("Stop bits: " + serialPort.stopBits)
+                switch (serialPort.stopBits)
+                {
+                    default:
+                    case 1:
+                        parityCombo.currentIndex = 0
+                        break
+
+                    case 3:
+                        parityCombo.currentIndex = 1
+                        break
+
+                    case 2:
+                        parityCombo.currentIndex = 2
+                        break
+                }
+
+                // Flow control
+                console.log("Flow control: " + serialPort.flowControl)
+                switch (serialPort.flowControl)
+                {
+                    default:
+                    case 0:
+                        flowCombo.currentIndex = 0
+                        break
+
+                    case 1:
+                        flowCombo.currentIndex = 1
+                        break
+
+                    case 2:
+                        flowCombo.currentIndex = 2
+                        break
+                }
+
+            }
+        }
+
+        onApply: {
+            console.log("Applying new settings: " + portCombo.currentText + " " + baudRateCombo.currentText + " " +
+                        dataBitsCombo.currentText + " " + parityCombo.currentText + " " + stopCombo.currentText + " " +
+                        flowCombo.currentText)
+
+            // Port
+            newPort(portCombo.currentText)
+
+            // Baud rate
+            serialPort.baudRate = baudRateCombo.currentText
+
+            // Data bits
+            serialPort.dataBits = "Data" + dataBitsCombo.currentText
+
+            // Parity
+            switch (parityCombo.currentIndex)
+            {
+                case 0:
+                    serialPort.parity = "NoParity"
+                    break;
+
+                case 1:
+                    serialPort.parity = "EvenParity"
+                    break;
+
+                case 2:
+                    serialPort.parity = "OddParity"
+                    break;
+
+                 default:
+                     serialPort.parity = "UnknownParity"
+                     break;
+            }
+
+            // Stop bits
+            switch (stopCombo.currentIndex)
+            {
+                case 0:
+                    serialPort.stopBits = "OneStop"
+                    break;
+
+                case 1:
+                    serialPort.stopBits = "OneAndHalfStop"
+                    break;
+
+                case 2:
+                    serialPort.stopBits = "TwoStop"
+                    break;
+
+                default:
+                    serialPort.stopBits = "UnknownStopBits";
+                    break;
+            }
+
+            // Flow control
+            switch (flowCombo.currentIndex)
+            {
+                case 0:
+                    serialPort.flowControl = "NoFlowControl";
+                    break;
+
+                case 1:
+                    serialPort.flowControl = "HardwareControl";
+                    break;
+
+                case 2:
+                    serialPort.flowControl = "SoftwareControl";
+                    break;
+
+                default:
+                    serialPort.flowControl = "UnknownFlowControl";
+                    break;
+            }
+        }
 
         GridLayout {
             id: settingsLayout
@@ -146,20 +338,21 @@ ApplicationWindow {
             ComboBox {
                 id: portCombo
                 model: portsListModel
+                onActivated: {
+                    console.log("Updating baud rate combo box")
+                }
             }
 
             Label { text: "<strong>Baud Rate</strong>" }
             ComboBox {
                 id: baudRateCombo
                 model: [1200, 2400, 9600, 19200, 38400, 57600, 115200]
-//                model: baudRatesModel
             }
 
             Label { text: "<strong>Data Bits</strong>" }
             ComboBox {
                 id: dataBitsCombo
                 model: [5, 6, 7, 8]
-                currentIndex: 3
             }
 
             Label { text: "<strong>Parity</strong>" }
@@ -185,5 +378,7 @@ ApplicationWindow {
         }
     }
 }
+
+
 
 

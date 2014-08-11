@@ -33,6 +33,7 @@
 
 class PortsListModel;
 
+//*****************************************************************************
 class SimpleTerminal : public QObject
 {
     Q_OBJECT
@@ -41,7 +42,7 @@ class SimpleTerminal : public QObject
     Q_PROPERTY(bool connState READ isConnected NOTIFY connStateChanged)
 
 public:
-    explicit SimpleTerminal(PortsListModel *portsList, QList<qint32> *baudRateList, QObject *parent = 0);
+    explicit SimpleTerminal(QSerialPort *port, PortsListModel *portsList, QObject *parent = 0);
     ~SimpleTerminal();
 
     QString displayText() const;
@@ -53,7 +54,6 @@ public:
     void generatePortList();
 
     PortsListModel *_availablePorts;
-    QList<qint32> *_availableBaudRates;
 
 signals:
     void displayTextChanged();
@@ -67,14 +67,14 @@ public slots:
     void connect();
     void disconnect();
 
-    void setSettings(QString port);
+    void setPort(QString port);
+    void refreshStatusText();
 
 
 private:
     static const int MAX_NUM_DISP_CHARS = 1024 * 16;
 
     void setStatusText(QString text);
-    void refreshStatusText();
 
     QString _displayText;
     bool _displayRead;
@@ -82,11 +82,6 @@ private:
     QSerialPort *_port;
     QString _eom;
     QString _portName;
-    QSerialPort::BaudRate _baudRate;
-    QSerialPort::DataBits _dataBits;
-    QSerialPort::FlowControl _flowControl;
-    QSerialPort::Parity _parity;
-    QSerialPort::StopBits _stopBits;
 
 };
 

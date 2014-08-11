@@ -24,6 +24,7 @@
 
 #include "portslistmodel.h"
 
+//*****************************************************************************
 PortsListModel::PortsListModel(QObject *parent) :
     QAbstractListModel(parent)
 {}
