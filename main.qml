@@ -50,19 +50,19 @@ ApplicationWindow {
             title: qsTr("&File")
 
             MenuItem {
-                text: qsTr("&Connect")
-                enabled: !simpleTerminal.connState
-                onTriggered: root.connect()
+                text: { simpleTerminal.connState ? qsTr("&Disconnect") : qsTr("&Connect") }
+//                enabled: !simpleTerminal.connState
+                onTriggered: { simpleTerminal.connState ? root.disconnect() : root.connect()}
             }
 
-            MenuItem {
-                text: qsTr("&Disconnect")
-                enabled: simpleTerminal.connState
-                onTriggered: root.disconnect()
-            }
+//            MenuItem {
+//                text: qsTr("&Disconnect")
+//                enabled: simpleTerminal.connState
+//                onTriggered: root.disconnect()
+//            }
 
             MenuItem {
-                text: qsTr("&Settings")
+                text: qsTr("&Settings...")
                 onTriggered: settingsDialog.open()
                 enabled: !simpleTerminal.connState
             }
@@ -77,7 +77,7 @@ ApplicationWindow {
             title: qsTr("&Help")
 
             MenuItem {
-                text: qsTr("&About")
+                text: qsTr("&About...")
                 onTriggered: aboutDialog.open()
             }
         }
@@ -137,6 +137,9 @@ ApplicationWindow {
         standardButtons: StandardButton.Apply | StandardButton.Cancel
         title: qsTr("Settings")
         width: settingsLayout.width + 50
+
+//        maximumHeight: height
+//        maximumWidth: width
 
         onVisibleChanged: {
             if (visible) {
