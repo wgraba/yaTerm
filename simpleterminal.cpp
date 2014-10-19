@@ -28,7 +28,7 @@
 #include <QSerialPort>
 #include <QSerialPortInfo>
 
-
+//**********************************************************************************************************************
 SimpleTerminal::SimpleTerminal(QSerialPort *port, PortsListModel *portsList, QObject *parent) :
     QObject(parent),
     _availablePorts(portsList),
@@ -36,8 +36,7 @@ SimpleTerminal::SimpleTerminal(QSerialPort *port, PortsListModel *portsList, QOb
     _displayRead(false),
     _statusText(QString()),
     _port(port),
-    _eom("\r\n"),
-    _portName(QString())
+    _eom("\r")
 {
     Q_CHECK_PTR(_port);
     Q_CHECK_PTR(_availablePorts);
@@ -45,7 +44,6 @@ SimpleTerminal::SimpleTerminal(QSerialPort *port, PortsListModel *portsList, QOb
     generatePortList();
     if (_availablePorts->getStringList().count() <= 0)
     {
-        _portName = "";
         _port->setBaudRate(QSerialPort::Baud115200);
         _port->setDataBits(QSerialPort::Data8);
         _port->setParity(QSerialPort::NoParity);
@@ -54,7 +52,7 @@ SimpleTerminal::SimpleTerminal(QSerialPort *port, PortsListModel *portsList, QOb
     }
     else
     {
-        _portName = _availablePorts->getStringList()[0];
+        _port->setPortName(_availablePorts->getStringList()[0]);
     }
 
     refreshStatusText();
@@ -69,10 +67,12 @@ SimpleTerminal::SimpleTerminal(QSerialPort *port, PortsListModel *portsList, QOb
 
 }
 
+//**********************************************************************************************************************
 SimpleTerminal::~SimpleTerminal()
 {
 }
 
+//**********************************************************************************************************************
 void SimpleTerminal::appendDspText(QString text)
 {
     int overFill = _displayText.size() + text.size() - MAX_NUM_DISP_CHARS;
@@ -86,12 +86,14 @@ void SimpleTerminal::appendDspText(QString text)
     emit displayTextChanged();
 }
 
+//**********************************************************************************************************************
 void SimpleTerminal::clearDspText()
 {
     _displayText.clear();
     emit displayTextChanged();
 }
 
+//**********************************************************************************************************************
 void SimpleTerminal::generatePortList()
 {
     QStringList ports;
@@ -102,32 +104,48 @@ void SimpleTerminal::generatePortList()
     _availablePorts->setStringList(ports);
 }
 
+//**********************************************************************************************************************
+void SimpleTerminal::setEOM(QString newEOM)
+{
+    _eom = newEOM;
+}
+
+//**********************************************************************************************************************
 void SimpleTerminal::setPort(QString port)
 {
-    _portName = port;
-    qDebug() << "Port set to " << _portName;
+    _port->setPortName(port);
+    qDebug() << "Port set to " << _port->portName();
 
     refreshStatusText();
 }
 
+//**********************************************************************************************************************
 QString SimpleTerminal::displayText() const
 {
     return _displayText;
 }
 
+//**********************************************************************************************************************
 QString SimpleTerminal::statusText() const
 {
     return _statusText;
 }
 
+//**********************************************************************************************************************
 bool SimpleTerminal::isConnected() const
 {
     return _port->isOpen();
 }
 
+//**********************************************************************************************************************
+QString SimpleTerminal::getEOM() const
+{
+    return _eom;
+}
+
+//**********************************************************************************************************************
 void SimpleTerminal::connect()
 {
-    _port->setPortName(_portName);
     if (_port->open(QIODevice::ReadWrite))
     {
         refreshStatusText();
@@ -141,6 +159,7 @@ void SimpleTerminal::connect()
     }
 }
 
+//**********************************************************************************************************************
 void SimpleTerminal::disconnect()
 {
     _port->close();
@@ -150,6 +169,7 @@ void SimpleTerminal::disconnect()
     qDebug() << "Disconnected";
 }
 
+//**********************************************************************************************************************
 void SimpleTerminal::write(const QString &msg)
 {
     QString txMsg = msg + _eom;
@@ -168,6 +188,7 @@ void SimpleTerminal::write(const QString &msg)
     appendDspText(pre + "<p><strong><kbd>" + txMsg.toHtmlEscaped() + "</kbd></strong></p>");
 }
 
+//**********************************************************************************************************************
 void SimpleTerminal::read()
 {
     QByteArray data = _port->readAll();
@@ -182,12 +203,14 @@ void SimpleTerminal::read()
     appendDspText(pre + QString(data).toHtmlEscaped());
 }
 
+//**********************************************************************************************************************
 void SimpleTerminal::setStatusText(QString text)
 {
     _statusText = text;
     emit statusTextChanged();
 }
 
+//**********************************************************************************************************************
 void SimpleTerminal::refreshStatusText()
 {
     QString newText;
@@ -196,7 +219,7 @@ void SimpleTerminal::refreshStatusText()
     else
         newText += "<strong>Disconnected</strong>";
 
-    newText += " " + (_portName == "" ? "None" : _portName);
+    newText += " " + (_port->portName() == "" ? "None" : _port->portName());
 
     QString dataBits = "-";
     switch (_port->dataBits())

@@ -33,14 +33,14 @@
 #include <QList>
 #include <QSerialPort>
 
-//*****************************************************************************
+//**********************************************************************************************************************
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
     app.setApplicationName("yaTerm");
     app.setApplicationVersion("0.1.0");
-//    app.setWindowIcon(QIcon(":/images/utilities-terminal-icon.png"));
+    app.setWindowIcon(QIcon(":/images/icon.svg"));
 
     QQmlApplicationEngine engine;
 

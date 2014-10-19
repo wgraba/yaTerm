@@ -51,15 +51,8 @@ ApplicationWindow {
 
             MenuItem {
                 text: { simpleTerminal.connState ? qsTr("&Disconnect") : qsTr("&Connect") }
-//                enabled: !simpleTerminal.connState
                 onTriggered: { simpleTerminal.connState ? root.disconnect() : root.connect()}
             }
-
-//            MenuItem {
-//                text: qsTr("&Disconnect")
-//                enabled: simpleTerminal.connState
-//                onTriggered: root.disconnect()
-//            }
 
             MenuItem {
                 text: qsTr("&Settings...")
@@ -137,9 +130,6 @@ ApplicationWindow {
         standardButtons: StandardButton.Apply | StandardButton.Cancel
         title: qsTr("Settings")
         width: settingsLayout.width + 50
-
-//        maximumHeight: height
-//        maximumWidth: width
 
         onVisibleChanged: {
             if (visible) {
@@ -255,13 +245,33 @@ ApplicationWindow {
                         break
                 }
 
+                // EOM
+                switch (simpleTerminal.eom)
+                {
+                    default:
+                    case "\r":
+                        console.log("EOM: CR")
+                        eomCombo.currentIndex = 0
+                        break;
+
+                    case "\n":
+                        console.log("EOM: LF")
+                        eomCombo.currentIndex = 1
+                        break;
+
+                    case "\n\r":
+                        console.log("EOM: LF+CR")
+                        eomCombo.currentIndex = 2
+                        break;
+                }
+
             }
         }
 
         onApply: {
             console.log("Applying new settings: " + portCombo.currentText + " " + baudRateCombo.currentText + " " +
                         dataBitsCombo.currentText + " " + parityCombo.currentText + " " + stopCombo.currentText + " " +
-                        flowCombo.currentText)
+                        flowCombo.currentText, " " + eomCombo.currentText)
 
             // Port
             newPort(portCombo.currentText)
@@ -331,6 +341,23 @@ ApplicationWindow {
                     serialPort.flowControl = "UnknownFlowControl";
                     break;
             }
+
+            // EOM
+            switch (eomCombo.currentIndex)
+            {
+                default:
+                case 0:
+                    simpleTerminal.eom = "\r";
+                    break;
+
+                case 1:
+                    simpleTerminal.eom = "\n";
+                    break;
+
+                case 2:
+                    simpleTerminal.eom = "\n\r";
+                    break;
+            }
         }
 
         GridLayout {
@@ -376,6 +403,13 @@ ApplicationWindow {
             ComboBox {
                 id: flowCombo
                 model: ["None", "Hardware", "Software"]
+                currentIndex: 0
+            }
+
+            Label { text: "<strong>End-of-Message Terminator</strong>" }
+            ComboBox {
+                id: eomCombo
+                model: ["CR", "LF", "LF+CR"]
                 currentIndex: 0
             }
         }

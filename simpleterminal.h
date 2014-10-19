@@ -33,13 +33,14 @@
 
 class PortsListModel;
 
-//*****************************************************************************
+//**********************************************************************************************************************
 class SimpleTerminal : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString displayText READ displayText RESET clearDspText NOTIFY displayTextChanged)
     Q_PROPERTY(QString statusText READ statusText NOTIFY statusTextChanged)
     Q_PROPERTY(bool connState READ isConnected NOTIFY connStateChanged)
+    Q_PROPERTY(QString eom READ getEOM WRITE setEOM NOTIFY eomChanged)
 
 public:
     explicit SimpleTerminal(QSerialPort *port, PortsListModel *portsList, QObject *parent = 0);
@@ -48,10 +49,12 @@ public:
     QString displayText() const;
     QString statusText() const;
     bool isConnected() const;
+    QString getEOM() const;
 
     void appendDspText(QString text);
     void clearDspText();
     void generatePortList();
+    void setEOM(QString newEOM);
 
     PortsListModel *_availablePorts;
 
@@ -59,6 +62,7 @@ signals:
     void displayTextChanged();
     void statusTextChanged();
     void connStateChanged();
+    void eomChanged();
 
 public slots:
     void write(const QString &msg);

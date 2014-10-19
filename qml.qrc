@@ -2,5 +2,7 @@
     <qresource prefix="/">
         <file>main.qml</file>
     </qresource>
-    <qresource prefix="/images"/>
+    <qresource prefix="/images">
+        <file>icon.svg</file>
+    </qresource>
 </RCC>
