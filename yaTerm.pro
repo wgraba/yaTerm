@@ -6,7 +6,7 @@ CONFIG += c++11
 
 SOURCES += main.cpp \
     simpleterminal.cpp \
-    portslistmodel.cpp
+    stringlistmodel.cpp
 
 RESOURCES += qml.qrc
 
@@ -18,4 +18,4 @@ include(deployment.pri)
 
 HEADERS += \
     simpleterminal.h \
-    portslistmodel.h
+    stringlistmodel.h

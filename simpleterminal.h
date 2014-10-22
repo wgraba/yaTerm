@@ -31,7 +31,7 @@
 #include <QSerialPort>
 #include <QList>
 
-class PortsListModel;
+class StringListModel;
 
 //**********************************************************************************************************************
 class SimpleTerminal : public QObject
@@ -43,7 +43,7 @@ class SimpleTerminal : public QObject
     Q_PROPERTY(QString eom READ getEOM WRITE setEOM NOTIFY eomChanged)
 
 public:
-    explicit SimpleTerminal(QSerialPort *port, PortsListModel *portsList, QObject *parent = 0);
+    explicit SimpleTerminal(QSerialPort *port, StringListModel *portsList, QObject *parent = 0);
     ~SimpleTerminal();
 
     QString displayText() const;
@@ -56,7 +56,7 @@ public:
     void generatePortList();
     void setEOM(QString newEOM);
 
-    PortsListModel *_availablePorts;
+    StringListModel *_availablePorts;
 
 signals:
     void displayTextChanged();

@@ -29,13 +29,13 @@
 #include <QStringList>
 
 //*****************************************************************************
-class PortsListModel : public QAbstractListModel
+class StringListModel : public QAbstractListModel
 {
     Q_OBJECT
 public:
-    explicit PortsListModel(QObject *parent = 0);
+    explicit StringListModel(QObject *parent = 0);
 
-    ~PortsListModel();
+    ~StringListModel();
 
     void setStringList(QStringList &list);
     QStringList getStringList() const;

@@ -23,7 +23,7 @@
 ******************************************************************************/
 
 #include "simpleterminal.h"
-#include "portslistmodel.h"
+#include "stringlistmodel.h"
 
 #include <QApplication>
 #include <QQmlApplicationEngine>
@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
 
 //    QList<QObject *> list = engine.children();
 //    QObject *item = engine.findChild<QObject *>("root");
-    PortsListModel portsListModel;
+    StringListModel portsListModel;
 
     QSerialPort serialPort;
     SimpleTerminal *simpleTerminal = new SimpleTerminal(&serialPort, &portsListModel, &app);

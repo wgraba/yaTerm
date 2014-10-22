@@ -22,38 +22,38 @@
  * SOFTWARE.
 ******************************************************************************/
 
-#include "portslistmodel.h"
+#include "stringlistmodel.h"
 
 //**********************************************************************************************************************
-PortsListModel::PortsListModel(QObject *parent) :
+StringListModel::StringListModel(QObject *parent) :
     QAbstractListModel(parent)
 {}
 
 //**********************************************************************************************************************
-PortsListModel::~PortsListModel()
+StringListModel::~StringListModel()
 {}
 
 //**********************************************************************************************************************
-void PortsListModel::setStringList(QStringList &list)
+void StringListModel::setStringList(QStringList &list)
 {
     _strings = list;
 }
 
 //**********************************************************************************************************************
-QStringList PortsListModel::getStringList() const
+QStringList StringListModel::getStringList() const
 {
     return _strings;
 }
 
 //**********************************************************************************************************************
-int PortsListModel::rowCount(const QModelIndex &parent) const
+int StringListModel::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
     return _strings.count();
 }
 
 //**********************************************************************************************************************
-QVariant PortsListModel::data(const QModelIndex &index, int role) const
+QVariant StringListModel::data(const QModelIndex &index, int role) const
 {
     if (index.row() < 0 || index.row() >= _strings.count())
         return QVariant();
@@ -65,7 +65,7 @@ QVariant PortsListModel::data(const QModelIndex &index, int role) const
 }
 
 //**********************************************************************************************************************
-QHash<int, QByteArray> PortsListModel::roleNames() const
+QHash<int, QByteArray> StringListModel::roleNames() const
 {
     QHash<int, QByteArray> roles;
     roles[Qt::DisplayRole] = "display";

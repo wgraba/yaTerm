@@ -23,13 +23,13 @@
 ******************************************************************************/
 
 #include "simpleterminal.h"
-#include "portslistmodel.h"
+#include "stringlistmodel.h"
 
 #include <QSerialPort>
 #include <QSerialPortInfo>
 
 //**********************************************************************************************************************
-SimpleTerminal::SimpleTerminal(QSerialPort *port, PortsListModel *portsList, QObject *parent) :
+SimpleTerminal::SimpleTerminal(QSerialPort *port, StringListModel *portsList, QObject *parent) :
     QObject(parent),
     _availablePorts(portsList),
     _displayText(QString()),
