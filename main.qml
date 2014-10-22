@@ -136,37 +136,6 @@ ApplicationWindow {
 
                 // Baud Rate
                 console.log("Current baud rate: ", serialPort.baudRate)
-                switch (serialPort.baudRate) {
-                    case 1200:
-                    default:
-                        baudRateCombo.currentIndex = 0
-                        break
-
-                    case 2400:
-                        baudRateCombo.currentIndex = 1
-                        break
-
-                    case 9600:
-                        baudRateCombo.currentIndex = 2
-                        break
-
-                    case 19200:
-                        baudRateCombo.currentIndex = 3
-                        break
-
-                    case 38400:
-                        baudRateCombo.currentIndex = 4
-                        break
-
-                    case 57600:
-                        baudRateCombo.currentIndex = 5
-                        break
-
-                    case 115200:
-                        baudRateCombo.currentIndex = 6
-                        break
-
-                }
 
                 // Data Bits
                 console.log("Current data bits: " + serialPort.dataBits)
@@ -368,15 +337,12 @@ ApplicationWindow {
             ComboBox {
                 id: portCombo
                 model: portsListModel
-                onActivated: {
-                    console.log("Updating baud rate combo box")
-                }
             }
 
             Label { text: "<strong>Baud Rate</strong>" }
             ComboBox {
                 id: baudRateCombo
-                model: [1200, 2400, 9600, 19200, 38400, 57600, 115200]
+                model: baudListModel
             }
 
             Label { text: "<strong>Data Bits</strong>" }

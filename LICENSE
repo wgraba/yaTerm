@@ -21,38 +21,3 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
 ******************************************************************************/
-
-#ifndef PORTSLISTMODEL_H
-#define PORTSLISTMODEL_H
-
-#include <QAbstractListModel>
-#include <QStringList>
-
-//*****************************************************************************
-class StringListModel : public QAbstractListModel
-{
-    Q_OBJECT
-public:
-    explicit StringListModel(QObject *parent = 0);
-    StringListModel(const StringListModel &listModel, QObject *parent = 0);
-
-    ~StringListModel();
-
-    void setStringList(QStringList &list);
-    QStringList getStringList() const;
-    virtual int rowCount(const QModelIndex & parent = QModelIndex()) const;
-    virtual QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const;
-
-signals:
-
-public slots:
-
-protected:
-    virtual QHash<int, QByteArray> roleNames() const;
-
-private:
-    QStringList _strings;
-
-};
-
-#endif // PORTSLISTMODEL_H

@@ -24,6 +24,7 @@
 
 #include "simpleterminal.h"
 #include "stringlistmodel.h"
+#include "listmodel.h"
 
 #include <QApplication>
 #include <QQmlApplicationEngine>
@@ -32,6 +33,7 @@
 #include <QDebug>
 #include <QList>
 #include <QSerialPort>
+#include <QSerialPortInfo>
 
 //**********************************************************************************************************************
 int main(int argc, char *argv[])
@@ -47,6 +49,9 @@ int main(int argc, char *argv[])
 //    QList<QObject *> list = engine.children();
 //    QObject *item = engine.findChild<QObject *>("root");
     StringListModel portsListModel;
+    ListModel<qint32> baudListModel;
+    QList<qint32> standardBaudRates(QSerialPortInfo::standardBaudRates());
+    baudListModel.setList(standardBaudRates);
 
     QSerialPort serialPort;
     SimpleTerminal *simpleTerminal = new SimpleTerminal(&serialPort, &portsListModel, &app);
@@ -54,6 +59,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("serialPort", &serialPort);
     engine.rootContext()->setContextProperty("simpleTerminal", simpleTerminal);
     engine.rootContext()->setContextProperty("portsListModel", &portsListModel);
+    engine.rootContext()->setContextProperty("baudListModel", &baudListModel);
 
     engine.load(QUrl(QStringLiteral("qrc:///main.qml")));
 

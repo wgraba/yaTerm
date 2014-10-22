@@ -21,60 +21,96 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
 ******************************************************************************/
+#ifndef LISTMODEL_H
+#define LISTMODEL_H
 
-#include "stringlistmodel.h"
+#include <QAbstractListModel>
+#include <QList>
 
 //**********************************************************************************************************************
-StringListModel::StringListModel(QObject *parent) :
-    QAbstractListModel(parent)
+template <class T>
+class ListModel : public QAbstractListModel
+{
+public:
+    explicit ListModel();
+    ListModel(const ListModel<T> &listModel);
+
+    ~ListModel();
+
+    void setList(QList<T> &list);
+    QList<T> getList() const;
+    virtual int rowCount(const QModelIndex & parent = QModelIndex()) const;
+    virtual QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const;
+
+protected:
+    virtual QHash<int, QByteArray> roleNames() const;
+
+private:
+    QList<T> _list;
+
+};
+
+//**********************************************************************************************************************
+template <class T>
+ListModel<T>::ListModel() :
+    QAbstractListModel()
 {}
 
 //**********************************************************************************************************************
-StringListModel::StringListModel(const StringListModel &listModel, QObject *parent) :
-    QAbstractListModel(parent)
+template <class T>
+ListModel<T>::ListModel(const ListModel<T> &listModel) :
+    QAbstractListModel()
 {
-    _strings = listModel._strings;
+    _list = listModel._list;
 }
 
 //**********************************************************************************************************************
-StringListModel::~StringListModel()
+template <class T>
+ListModel<T>::~ListModel()
 {}
 
 //**********************************************************************************************************************
-void StringListModel::setStringList(QStringList &list)
+template <class T>
+void ListModel<T>::setList(QList<T> &list)
 {
-    _strings = list;
+    _list = list;
 }
 
 //**********************************************************************************************************************
-QStringList StringListModel::getStringList() const
+template <class T>
+QList<T> ListModel<T>::getList() const
 {
-    return _strings;
+    return _list;
 }
 
 //**********************************************************************************************************************
-int StringListModel::rowCount(const QModelIndex &parent) const
+template <class T>
+int ListModel<T>::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
-    return _strings.count();
+    return _list.count();
 }
 
 //**********************************************************************************************************************
-QVariant StringListModel::data(const QModelIndex &index, int role) const
+template <class T>
+QVariant ListModel<T>::data(const QModelIndex &index, int role) const
 {
-    if (index.row() < 0 || index.row() >= _strings.count())
+    if (index.row() < 0 || index.row() >= _list.count())
         return QVariant();
 
     if (role == Qt::DisplayRole)
-        return _strings[index.row()];
+        return _list[index.row()];
 
     return QVariant();
 }
 
 //**********************************************************************************************************************
-QHash<int, QByteArray> StringListModel::roleNames() const
+template <class T>
+QHash<int, QByteArray> ListModel<T>::roleNames() const
 {
     QHash<int, QByteArray> roles;
     roles[Qt::DisplayRole] = "display";
     return roles;
 }
+
+#endif // LISTMODEL_H

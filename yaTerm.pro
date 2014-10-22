@@ -18,4 +18,5 @@ include(deployment.pri)
 
 HEADERS += \
     simpleterminal.h \
-    stringlistmodel.h
+    stringlistmodel.h \
+    listmodel.h
