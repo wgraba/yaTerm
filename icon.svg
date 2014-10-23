@@ -20,7 +20,6 @@
   <defs
      id="defs2987">
     <linearGradient
-       inkscape:collect="always"
        id="linearGradient5430"
        osb:paint="gradient">
       <stop
@@ -94,16 +93,16 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="13.40625"
-     inkscape:cx="32"
+     inkscape:cx="18.871795"
      inkscape:cy="32"
-     inkscape:current-layer="layer1"
+     inkscape:current-layer="layer2"
      showgrid="true"
      inkscape:document-units="px"
      inkscape:grid-bbox="true"
      inkscape:snap-global="false"
      inkscape:window-width="1785"
      inkscape:window-height="1005"
-     inkscape:window-x="57"
+     inkscape:window-x="67"
      inkscape:window-y="47"
      inkscape:window-maximized="0">
     <inkscape:grid
@@ -118,7 +117,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -133,5 +132,31 @@
        height="44.81818"
        x="5.1818185"
        y="9.181818" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="fauxTest">
+    <rect
+       style="fill:#000000;fill-opacity:0.57077631;stroke:#000000;stroke-width:0.10356114;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       id="rect2998"
+       width="40.871037"
+       height="2.0104687"
+       x="11.639072"
+       y="24.427031" />
+    <rect
+       style="fill:#000000;fill-opacity:0.57077631;stroke:#000000;stroke-width:0.10356114;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       id="rect2998-5"
+       width="40.871037"
+       height="2.0104687"
+       x="11.639073"
+       y="30.427031" />
+    <rect
+       style="fill:#000000;fill-opacity:0.57077631;stroke:#000000;stroke-width:0.10356114;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
+       id="rect2998-5-3"
+       width="40.871037"
+       height="2.0104687"
+       x="11.6395"
+       y="36.427032" />
   </g>
 </svg>

@@ -156,7 +156,8 @@ void SimpleTerminal::connect()
     }
     else
     {
-        qWarning() << "Could not connect";
+        qWarning() << "Could not connect\nError code: " << _port->error() << "\nError description: "
+                   << _port->errorString();
     }
 }
 
