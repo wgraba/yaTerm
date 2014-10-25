@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("portsListModel", &portsListModel);
     engine.rootContext()->setContextProperty("baudListModel", &baudListModel);
 
-    engine.load(QUrl(QStringLiteral("qrc:///main.qml")));
+    engine.load(QUrl(QStringLiteral("qrc:/src/main.qml")));
 
     QObject *item = engine.rootObjects().value(0);
     Q_CHECK_PTR(item);
