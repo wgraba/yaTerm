@@ -109,6 +109,10 @@ ApplicationWindow {
         text: simpleTerminal.displayText
         readOnly: true
         textFormat: TextEdit.RichText
+        wrapMode: TextEdit.Wrap
+
+        font.family: "Monospace"
+        font.pointSize: 10
 
     }
 

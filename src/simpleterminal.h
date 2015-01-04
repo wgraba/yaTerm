@@ -43,6 +43,14 @@ class SimpleTerminal : public QObject
     Q_PROPERTY(QString eom READ getEOM WRITE setEOM NOTIFY eomChanged)
 
 public:
+    enum class DspType
+    {
+        READ_MESSAGE,
+        WRITE_MESSAGE,
+        COMMAND_SUCCESS,
+        COMMAND_FAIL
+    };
+
     explicit SimpleTerminal(QSerialPort *port, StringListModel *portsList, QObject *parent = 0);
     ~SimpleTerminal();
 
@@ -51,7 +59,7 @@ public:
     bool isConnected() const;
     QString getEOM() const;
 
-    void appendDspText(QString text);
+    void appendDspText(DspType type, const QString &text);
     void clearDspText();
     void generatePortList();
     void setEOM(QString newEOM);
@@ -65,7 +73,7 @@ signals:
     void eomChanged();
 
 public slots:
-    void write(const QString &msg);
+    void parseInput(const QString &msg);
     void read();
 
     void connect();
@@ -79,9 +87,11 @@ private:
     static const int MAX_NUM_DISP_CHARS = 1024 * 16;
 
     void setStatusText(QString text);
+    void processCommand(const QString &cmd);
+    void write(const QString &msg);
+
 
     QString _displayText;
-    bool _displayRead;
     QString _statusText;
     QSerialPort *_port;
     QString _eom;

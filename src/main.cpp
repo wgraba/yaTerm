@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
     QObject *item = engine.rootObjects().value(0);
     Q_CHECK_PTR(item);
 
-    QObject::connect(item, SIGNAL(consoleInputEntered(QString)), simpleTerminal, SLOT(write(QString)));
+    QObject::connect(item, SIGNAL(consoleInputEntered(QString)), simpleTerminal, SLOT(parseInput(QString)));
     QObject::connect(item, SIGNAL(connect()), simpleTerminal, SLOT(connect()));
     QObject::connect(item, SIGNAL(disconnect()), simpleTerminal, SLOT(disconnect()));
     QObject::connect(item, SIGNAL(newPort(QString)), simpleTerminal, SLOT(setPort(QString)));

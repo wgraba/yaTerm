@@ -25,6 +25,7 @@
 #include "simpleterminal.h"
 #include "stringlistmodel.h"
 
+#include <QApplication>
 #include <QSerialPort>
 #include <QSerialPortInfo>
 
@@ -33,7 +34,6 @@ SimpleTerminal::SimpleTerminal(QSerialPort *port, StringListModel *portsList, QO
     QObject(parent),
     _availablePorts(portsList),
     _displayText(QString()),
-    _displayRead(false),
     _statusText(QString()),
     _port(port),
     _eom("\r")
@@ -74,15 +74,92 @@ SimpleTerminal::~SimpleTerminal()
 }
 
 //**********************************************************************************************************************
-void SimpleTerminal::appendDspText(QString text)
+void SimpleTerminal::appendDspText(DspType type, const QString &text)
 {
-    int overFill = _displayText.size() + text.size() - MAX_NUM_DISP_CHARS;
-    if (overFill <= 0)  // No over-fill
-        _displayText += text;
-    else
+    static const QString readMsgPre = "<p>";
+    static const QString readMsgPost = "</p>";
+
+    QString sanitizedText = text.toHtmlEscaped();
+
+    // Format text according to type of message
+    QString dspText;
+    static bool isReading = false;
+    switch(type)
     {
-        _displayText.remove(0, overFill);
+        case DspType::READ_MESSAGE:
+        {
+            if (!isReading)
+            {
+                dspText = readMsgPre + sanitizedText;
+                isReading = true;
+            }
+            else
+                dspText = sanitizedText;
+
+            break;
+        }
+
+        case DspType::WRITE_MESSAGE:
+        {
+            QString msg = "<p><b>" + sanitizedText + "</b></p>";
+            if (isReading)
+            {
+                dspText = readMsgPost + msg;
+                isReading = false;
+            }
+            else
+                dspText = msg;
+
+            break;
+        }
+
+        case DspType::COMMAND_SUCCESS:
+        {
+            QString msg = "<p style = \"color: blue;\"><i>" + sanitizedText + "</i></p>";
+            if (isReading)
+            {
+                dspText = readMsgPost + msg;
+                isReading = false;
+            }
+            else
+                dspText = msg;
+
+            break;
+        }
+
+        case DspType::COMMAND_FAIL:
+        {
+            QString msg = "<p style = \"color: blue;\"><i>" + sanitizedText + "</i></p>";
+            if (isReading)
+            {
+                dspText = readMsgPost + msg;
+                isReading = false;
+            }
+            else
+                dspText = msg;
+
+            break;
+        }
+
+        default:
+            QString msg = "<p>" + sanitizedText + "</p>";
+            if (isReading)
+            {
+                dspText = readMsgPost + msg;
+                isReading = false;
+            }
+            else
+                dspText = msg;
+
+            break;
     }
+
+    // Check display limit
+    int overFill = _displayText.size() + sanitizedText.size() - MAX_NUM_DISP_CHARS;
+    if (overFill > 0)
+        _displayText.remove(0, overFill);
+
+    _displayText += dspText;
 
     emit displayTextChanged();
 }
@@ -109,6 +186,23 @@ void SimpleTerminal::generatePortList()
 void SimpleTerminal::setEOM(QString newEOM)
 {
     _eom = newEOM;
+}
+
+//**********************************************************************************************************************
+void SimpleTerminal::parseInput(const QString &msg)
+{
+    if (msg.startsWith('/'))
+    {
+        processCommand(msg.mid(1));
+    }
+    else if (msg.startsWith("\\/"))
+    {
+        write(msg.mid(1));
+    }
+    else
+    {
+        write(msg);
+    }
 }
 
 //**********************************************************************************************************************
@@ -175,34 +269,58 @@ void SimpleTerminal::disconnect()
 void SimpleTerminal::write(const QString &msg)
 {
     QString txMsg = msg + _eom;
+
     qDebug() << "Write:" << txMsg << QByteArray(msg.toLocal8Bit()).toHex();
+
     if (_port->isOpen())
         _port->write((txMsg).toLocal8Bit());
     else
         qWarning() << "Port is not open";
 
-    QString pre;
-    if (_displayRead)
+    appendDspText(DspType::WRITE_MESSAGE, txMsg);
+}
+
+//**********************************************************************************************************************
+void SimpleTerminal::processCommand(const QString &cmd)
+{
+    qDebug() << "Command: " << cmd;
+
+    if (cmd.length() < 1)
+        return; // Do nothing if there is no command
+
+    DspType dspType = DspType::COMMAND_SUCCESS;
+    QStringList cmdList = cmd.split(' '); // Command is first item, parameters are what's left
+    if (cmdList[0] == "connect")
     {
-        pre = "</samp></p>";
-        _displayRead = false;
+        if (cmdList.size() > 1)
+        {
+            setPort(cmdList[1]);
+            connect();
+        }
     }
-    appendDspText(pre + "<p><strong><kbd>" + txMsg.toHtmlEscaped() + "</kbd></strong></p>");
+    else if (cmdList[0] == "disconnect")
+    {
+        disconnect();
+    }
+    else if (cmdList[0] == "quit")
+    {
+        QApplication::quit();
+    }
+    else
+    {
+        dspType = DspType::COMMAND_FAIL;
+    }
+
+    appendDspText(dspType, cmd);
 }
 
 //**********************************************************************************************************************
 void SimpleTerminal::read()
 {
     QByteArray data = _port->readAll();
-    qDebug() << "Read:" << data << data.toHex();
+    qDebug() << "Read: " << data << data.toHex();
 
-    QString pre;
-    if (!_displayRead)
-    {
-        pre = "<p><samp>";
-        _displayRead = true;
-    }
-    appendDspText(pre + QString(data).toHtmlEscaped());
+    appendDspText(DspType::READ_MESSAGE, QString(data));
 }
 
 //**********************************************************************************************************************
