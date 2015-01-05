@@ -1,7 +1,7 @@
 yaTerm
 ======
 
-yet another Serial Terminal
+**y**et **a**nother Serial **Term**inal
 
 Description
 ===========
