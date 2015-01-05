@@ -88,6 +88,7 @@ void SimpleTerminal::appendDspText(DspType type, const QString &text)
     {
         case DspType::READ_MESSAGE:
         {
+            sanitizedText.replace(_eom, readMsgPost + readMsgPre);
             if (!isReading)
             {
                 dspText = readMsgPre + sanitizedText;
@@ -127,9 +128,9 @@ void SimpleTerminal::appendDspText(DspType type, const QString &text)
             break;
         }
 
-        case DspType::COMMAND_FAIL:
+        case DspType::ERROR:
         {
-            QString msg = "<p style = \"color: blue;\"><i>" + sanitizedText + "</i></p>";
+            QString msg = "<p style = \"color: red;\"><i>ERROR: " + sanitizedText + "</i></p>";
             if (isReading)
             {
                 dspText = readMsgPost + msg;
@@ -227,6 +228,12 @@ QString SimpleTerminal::statusText() const
 }
 
 //**********************************************************************************************************************
+QString SimpleTerminal::errorText() const
+{
+    return _errorText;
+}
+
+//**********************************************************************************************************************
 bool SimpleTerminal::isConnected() const
 {
     return _port->isOpen();
@@ -275,7 +282,11 @@ void SimpleTerminal::write(const QString &msg)
     if (_port->isOpen())
         _port->write((txMsg).toLocal8Bit());
     else
+    {
         qWarning() << "Port is not open";
+        appendDspText(DspType::ERROR, "Port is not open");
+        setErrorText("Error writing");
+    }
 
     appendDspText(DspType::WRITE_MESSAGE, txMsg);
 }
@@ -308,7 +319,7 @@ void SimpleTerminal::processCommand(const QString &cmd)
     }
     else
     {
-        dspType = DspType::COMMAND_FAIL;
+        dspType = DspType::ERROR;
     }
 
     appendDspText(dspType, cmd);
@@ -328,6 +339,13 @@ void SimpleTerminal::setStatusText(QString text)
 {
     _statusText = text;
     emit statusTextChanged();
+}
+
+//**********************************************************************************************************************
+void SimpleTerminal::setErrorText(QString text)
+{
+    _errorText = text;
+    emit errorTextChanged();
 }
 
 //**********************************************************************************************************************

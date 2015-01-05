@@ -22,8 +22,8 @@
  * SOFTWARE.
 ******************************************************************************/
 
-import QtQuick 2.2
-import QtQuick.Controls 1.2
+import QtQuick 2.4
+import QtQuick.Controls 1.3
 import QtQuick.Layouts 1.1
 import QtQuick.Dialogs 1.2
 
@@ -67,6 +67,17 @@ ApplicationWindow {
         }
 
         Menu {
+            title: qsTr("&Edit")
+
+            MenuItem {
+                text: qsTr("&Clear")
+                onTriggered: {
+                    simpleTerminal.displayText = undefined
+                }
+            }
+        }
+
+        Menu {
             title: qsTr("&Help")
 
             MenuItem {
@@ -79,7 +90,19 @@ ApplicationWindow {
     statusBar: StatusBar {
         id: status
         RowLayout {
-            Label { text: qsTr(simpleTerminal.statusText) }
+            anchors.fill: parent
+            Label {
+                id: notification
+                text: qsTr(simpleTerminal.statusText)
+                horizontalAlignment: Text.AlignLeft
+            }
+
+            Label {
+                id: error
+                color: "red"
+                text: qsTr(simpleTerminal.errorText)
+                horizontalAlignment: Text.AlignRight
+            }
         }
     }
 
@@ -107,6 +130,7 @@ ApplicationWindow {
         KeyNavigation.tab: consoleInput
 
         text: simpleTerminal.displayText
+        onTextChanged: { cursorPosition = length }
         readOnly: true
         textFormat: TextEdit.RichText
         wrapMode: TextEdit.Wrap
@@ -123,8 +147,7 @@ ApplicationWindow {
         text: { "<p><strong>y</strong>et <strong>a</strong>nother Serial <strong>Term</strong>inal " +
                 Qt.application.version +
                 "<p><em>by Wesley Graba</em></p>" +
-                "<p>The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, " +
-                "MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.</p>" }
+                "<p>The program is provided AS IS with NO WARRANTY OF ANY KIND.</p>" }
         title: qsTr("About ") + Qt.application.name
     }
 

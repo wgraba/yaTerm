@@ -37,8 +37,9 @@ class StringListModel;
 class SimpleTerminal : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString displayText READ displayText RESET clearDspText NOTIFY displayTextChanged)
+    Q_PROPERTY(QString displayText MEMBER _displayText RESET clearDspText NOTIFY displayTextChanged)
     Q_PROPERTY(QString statusText READ statusText NOTIFY statusTextChanged)
+    Q_PROPERTY(QString errorText READ errorText NOTIFY errorTextChanged)
     Q_PROPERTY(bool connState READ isConnected NOTIFY connStateChanged)
     Q_PROPERTY(QString eom READ getEOM WRITE setEOM NOTIFY eomChanged)
 
@@ -48,7 +49,7 @@ public:
         READ_MESSAGE,
         WRITE_MESSAGE,
         COMMAND_SUCCESS,
-        COMMAND_FAIL
+        ERROR
     };
 
     explicit SimpleTerminal(QSerialPort *port, StringListModel *portsList, QObject *parent = 0);
@@ -56,11 +57,12 @@ public:
 
     QString displayText() const;
     QString statusText() const;
+    QString errorText() const;
     bool isConnected() const;
     QString getEOM() const;
 
-    void appendDspText(DspType type, const QString &text);
     void clearDspText();
+    void appendDspText(DspType type, const QString &text);
     void generatePortList();
     void setEOM(QString newEOM);
 
@@ -69,6 +71,7 @@ public:
 signals:
     void displayTextChanged();
     void statusTextChanged();
+    void errorTextChanged();
     void connStateChanged();
     void eomChanged();
 
@@ -78,8 +81,8 @@ public slots:
 
     void connect();
     void disconnect();
-
     void setPort(QString port);
+
     void refreshStatusText();
 
 
@@ -87,12 +90,14 @@ private:
     static const int MAX_NUM_DISP_CHARS = 1024 * 16;
 
     void setStatusText(QString text);
+    void setErrorText(QString text);
     void processCommand(const QString &cmd);
     void write(const QString &msg);
 
 
     QString _displayText;
     QString _statusText;
+    QString _errorText;
     QSerialPort *_port;
     QString _eom;
     QString _portName;
