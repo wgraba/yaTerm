@@ -72,7 +72,8 @@ ApplicationWindow {
             MenuItem {
                 text: qsTr("&Clear")
                 onTriggered: {
-                    simpleTerminal.displayText = undefined
+                    consoleOutput.cursorPosition = 0 // Set valid cursor position post-reset
+                    simpleTerminal.displayText = undefined // Trigger reset
                 }
             }
         }
@@ -95,6 +96,7 @@ ApplicationWindow {
                 id: notification
                 text: qsTr(simpleTerminal.statusText)
                 horizontalAlignment: Text.AlignLeft
+                font.wordSpacing: 5.0
             }
 
             Label {
@@ -130,7 +132,15 @@ ApplicationWindow {
         KeyNavigation.tab: consoleInput
 
         text: simpleTerminal.displayText
-        onTextChanged: { cursorPosition = length }
+        onTextChanged: {
+            // Constrain history length
+            if (length > simpleTerminal.maxDspTxtCharsChanged)
+            {
+                remove(0, length - simpleTerminal.maxDspTxtCharsChanged)
+            }
+
+            cursorPosition = length // Update cursor to end; may have control over this in the future
+        }
         readOnly: true
         textFormat: TextEdit.RichText
         wrapMode: TextEdit.Wrap

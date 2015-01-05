@@ -38,6 +38,7 @@ class SimpleTerminal : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString displayText MEMBER _displayText RESET clearDspText NOTIFY displayTextChanged)
+    Q_PROPERTY(u_int32_t maxDspTxtChars MEMBER _maxDisplayTextChars NOTIFY maxDspTxtCharsChanged)
     Q_PROPERTY(QString statusText READ statusText NOTIFY statusTextChanged)
     Q_PROPERTY(QString errorText READ errorText NOTIFY errorTextChanged)
     Q_PROPERTY(bool connState READ isConnected NOTIFY connStateChanged)
@@ -48,7 +49,7 @@ public:
     {
         READ_MESSAGE,
         WRITE_MESSAGE,
-        COMMAND_SUCCESS,
+        COMMAND,
         ERROR
     };
 
@@ -74,6 +75,7 @@ signals:
     void errorTextChanged();
     void connStateChanged();
     void eomChanged();
+    void maxDspTxtCharsChanged();
 
 public slots:
     void parseInput(const QString &msg);
@@ -87,8 +89,6 @@ public slots:
 
 
 private:
-    static const int MAX_NUM_DISP_CHARS = 1024 * 16;
-
     void setStatusText(QString text);
     void setErrorText(QString text);
     void processCommand(const QString &cmd);
@@ -101,6 +101,8 @@ private:
     QSerialPort *_port;
     QString _eom;
     QString _portName;
+
+    u_int32_t _maxDisplayTextChars = 1024 * 16;
 
 };
 

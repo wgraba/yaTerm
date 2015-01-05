@@ -88,7 +88,7 @@ void SimpleTerminal::appendDspText(DspType type, const QString &text)
     {
         case DspType::READ_MESSAGE:
         {
-            sanitizedText.replace(_eom, readMsgPost + readMsgPre);
+            sanitizedText.replace(_eom, _eom + readMsgPost + readMsgPre);
             if (!isReading)
             {
                 dspText = readMsgPre + sanitizedText;
@@ -114,7 +114,7 @@ void SimpleTerminal::appendDspText(DspType type, const QString &text)
             break;
         }
 
-        case DspType::COMMAND_SUCCESS:
+        case DspType::COMMAND:
         {
             QString msg = "<p style = \"color: blue;\"><i>" + sanitizedText + "</i></p>";
             if (isReading)
@@ -155,11 +155,6 @@ void SimpleTerminal::appendDspText(DspType type, const QString &text)
             break;
     }
 
-    // Check display limit
-    int overFill = _displayText.size() + sanitizedText.size() - MAX_NUM_DISP_CHARS;
-    if (overFill > 0)
-        _displayText.remove(0, overFill);
-
     _displayText += dspText;
 
     emit displayTextChanged();
@@ -169,6 +164,7 @@ void SimpleTerminal::appendDspText(DspType type, const QString &text)
 void SimpleTerminal::clearDspText()
 {
     _displayText.clear();
+
     emit displayTextChanged();
 }
 
@@ -299,7 +295,7 @@ void SimpleTerminal::processCommand(const QString &cmd)
     if (cmd.length() < 1)
         return; // Do nothing if there is no command
 
-    DspType dspType = DspType::COMMAND_SUCCESS;
+    DspType dspType = DspType::COMMAND;
     QStringList cmdList = cmd.split(' '); // Command is first item, parameters are what's left
     if (cmdList[0] == "connect")
     {
