@@ -61,11 +61,16 @@ public:
     QString errorText() const;
     bool isConnected() const;
     QString getEOM() const;
+    int getInputHistoryLen() const;
+    Q_INVOKABLE QString getInputHistoryIdx(int idx) const;
+    Q_INVOKABLE QString getPrevHistory();
+    Q_INVOKABLE QString getNextHistory();
 
     void clearDspText();
     void appendDspText(DspType type, const QString &text);
     void generatePortList();
     void setEOM(QString newEOM);
+    Q_INVOKABLE void resetHistoryIdx();
 
     StringListModel *_availablePorts;
 
@@ -89,6 +94,8 @@ public slots:
 
 
 private:
+    static const int MAX_INPUT_HISTORY_LEN = 64;
+
     void setStatusText(QString text);
     void setErrorText(QString text);
     void processCommand(const QString &cmd);
@@ -100,7 +107,9 @@ private:
     QString _errorText;
     QSerialPort *_port;
     QString _eom;
-    QString _portName;
+
+    QStringList _inputHistory;
+    int _inputHistoryIdx;
 
     u_int32_t _maxDisplayTextChars = 1024 * 16;
 

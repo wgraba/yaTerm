@@ -36,7 +36,9 @@ SimpleTerminal::SimpleTerminal(QSerialPort *port, StringListModel *portsList, QO
     _displayText(QString()),
     _statusText(QString()),
     _port(port),
-    _eom("\r")
+    _eom("\r"),
+    _inputHistory(),
+    _inputHistoryIdx(-1)
 {
     Q_CHECK_PTR(_port);
     Q_CHECK_PTR(_availablePorts);
@@ -186,6 +188,14 @@ void SimpleTerminal::setEOM(QString newEOM)
 }
 
 //**********************************************************************************************************************
+void SimpleTerminal::resetHistoryIdx()
+{
+    _inputHistoryIdx = _inputHistory.size();
+
+    qDebug() << "History idx: " << _inputHistoryIdx;
+}
+
+//**********************************************************************************************************************
 void SimpleTerminal::parseInput(const QString &msg)
 {
     if (msg.startsWith('/'))
@@ -200,6 +210,15 @@ void SimpleTerminal::parseInput(const QString &msg)
     {
         write(msg);
     }
+
+    // Add to history
+    if (_inputHistory.size() >= MAX_INPUT_HISTORY_LEN)
+        _inputHistory.removeFirst();
+
+    _inputHistory << msg;
+    _inputHistoryIdx = _inputHistory.size();
+
+    qDebug() << "History idx: " << _inputHistoryIdx;
 }
 
 //**********************************************************************************************************************
@@ -239,6 +258,59 @@ bool SimpleTerminal::isConnected() const
 QString SimpleTerminal::getEOM() const
 {
     return _eom;
+}
+
+//**********************************************************************************************************************
+int SimpleTerminal::getInputHistoryLen() const
+{
+    return _inputHistory.size();
+}
+
+//**********************************************************************************************************************
+QString SimpleTerminal::getInputHistoryIdx(int idx) const
+{
+    if (idx >= _inputHistory.length() || idx < 0)
+        return QString();
+
+    return _inputHistory[idx];
+}
+
+//**********************************************************************************************************************
+QString SimpleTerminal::getPrevHistory()
+{
+    QString retval;
+    if (_inputHistoryIdx >= 0 && _inputHistory.size() > 0)
+    {
+        if (--_inputHistoryIdx < 0)
+            _inputHistoryIdx = 0;
+
+        retval = _inputHistory[_inputHistoryIdx];
+
+        qDebug() << "History idx: " << _inputHistoryIdx;
+    }
+
+    return retval;
+}
+
+//**********************************************************************************************************************
+QString SimpleTerminal::getNextHistory()
+{
+    QString retval;
+
+    if (_inputHistoryIdx >= 0 && _inputHistory.size() > 1)
+    {
+        if (++_inputHistoryIdx >= _inputHistory.size())
+        {
+            _inputHistoryIdx = _inputHistory.size();
+            retval = QString();
+        }
+        else
+            retval = _inputHistory[_inputHistoryIdx];
+
+        qDebug() << "History idx: " << _inputHistoryIdx;
+    }
+
+    return retval;
 }
 
 //**********************************************************************************************************************

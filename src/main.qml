@@ -67,7 +67,14 @@ ApplicationWindow {
         }
 
         Menu {
-            title: qsTr("&Edit")
+            title: qsTr("&View")
+
+            MenuItem {
+                text: qsTr("&Autoscroll")
+                onTriggered: { consoleOutput.autoscroll = !consoleOutput.autoscroll }
+                checked: consoleOutput.autoscroll
+                checkable: true
+            }
 
             MenuItem {
                 text: qsTr("&Clear")
@@ -117,6 +124,12 @@ ApplicationWindow {
 
         Keys.onEnterPressed: root.inputEntered()
         Keys.onReturnPressed: root.inputEntered()
+        Keys.onUpPressed: { text = simpleTerminal.getPrevHistory() }
+        Keys.onDownPressed: { text = simpleTerminal.getNextHistory() }
+        Keys.onEscapePressed: {
+            text = ""
+            simpleTerminal.resetHistoryIdx()
+        }
 
         KeyNavigation.tab: consoleOutput
         focus: true
@@ -124,6 +137,9 @@ ApplicationWindow {
 
     TextArea {
         id: consoleOutput
+
+        property bool autoscroll: true
+
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: consoleInput.top
@@ -139,8 +155,14 @@ ApplicationWindow {
                 remove(0, length - simpleTerminal.maxDspTxtCharsChanged)
             }
 
-            cursorPosition = length // Update cursor to end; may have control over this in the future
+            if (autoscroll)
+                cursorPosition = length // Update cursor to end; may have control over this in the future
         }
+        onFocusChanged: {
+            if (autoscroll)
+                autoscroll = false
+        }
+
         readOnly: true
         textFormat: TextEdit.RichText
         wrapMode: TextEdit.Wrap

@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
 
     app.setApplicationName("yaTerm");
-    app.setApplicationVersion("0.1.0");
+    app.setApplicationVersion("0.1.1");
     app.setWindowIcon(QIcon(":/images/icon.svg"));
 
     QQmlApplicationEngine engine;
