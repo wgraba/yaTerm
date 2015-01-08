@@ -3,6 +3,8 @@ yaTerm
 
 **y**et **a**nother Serial **Term**inal
 
+![yaTerm Example](https://lh5.googleusercontent.com/-TNKHbdOqvWM/VK4kNwvnhnI/AAAAAAAAD44/gLz8Ti9Kg5s/w642-h520-no/yaTerm_screenshot.png)
+
 Description
 ===========
 
@@ -11,10 +13,19 @@ project are to replace other serial terminal programs that I'm not quite happy
 with and to learn GUI programming with QML and Qt. As a consequence, this
 is a work-in-progress and pretty rough.
 
+Features
+========
+
+* Separate input and output windows
+* Input history (use 'up' and 'down' keys with input window focused)
+* Simple command-line interface (type "/help" into input window)
+* Minor formatting applied to output to visually distiguish sent text from received text, commands, errors, etc
+* Selectable auto-scrolling of output window
+
 Prerequisites
 =============
 
-* Qt 5.3.1+
+* Qt 5.4+
 * Appropriate compiler such as GCC 4.8+
 
 The easiest way to get all the prerequisites is to download the [Qt SDK](http://qt-project.org/downloads).
