@@ -30,6 +30,7 @@
 #include <QString>
 #include <QSerialPort>
 #include <QList>
+#include <QMap>
 
 class StringListModel;
 
@@ -101,6 +102,12 @@ private:
     void processCommand(const QString &cmd);
     void write(const QString &msg);
 
+    // Commands
+    static void cmdClear(SimpleTerminal &st, const QStringList &);
+    static void cmdConnect(SimpleTerminal &st, const QStringList &args);
+    static void cmdDisconnect(SimpleTerminal &st, const QStringList &);
+    static void cmdQuit(SimpleTerminal &, const QStringList &);
+    static void cmdHelp(SimpleTerminal &st, const QStringList &args);
 
     QString _displayText;
     QString _statusText;
@@ -112,6 +119,10 @@ private:
     int _inputHistoryIdx;
 
     u_int32_t _maxDisplayTextChars = 1024 * 16;
+
+    typedef void (*CmdFunc)(SimpleTerminal &, const QStringList &);
+    static const QMap<QString, CmdFunc> cmdMap;
+    static const QMap<QString, QStringList> cmdHelpMap;
 
 };
 

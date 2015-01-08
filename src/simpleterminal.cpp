@@ -30,6 +30,24 @@
 #include <QSerialPortInfo>
 
 //**********************************************************************************************************************
+const QMap<QString, SimpleTerminal::CmdFunc> SimpleTerminal::cmdMap = {
+    { "/clear", SimpleTerminal::cmdClear },
+    { "/connect", SimpleTerminal::cmdConnect },
+    { "/disconnect", SimpleTerminal::cmdDisconnect },
+    { "/help", SimpleTerminal::cmdHelp },
+    { "/quit", SimpleTerminal::cmdQuit },
+};
+
+//**********************************************************************************************************************
+const QMap<QString, QStringList> SimpleTerminal::cmdHelpMap = {
+    { "/clear", { "", "Clear the screen" } },
+    { "/connect", { "portName", "Connect to port" } },
+    { "/disconnect", { "", "Disconnect from port" } },
+    { "/help", { "[command]", "Get help" } },
+    { "/quit", { "", "Quit" } },
+};
+
+//**********************************************************************************************************************
 SimpleTerminal::SimpleTerminal(QSerialPort *port, StringListModel *portsList, QObject *parent) :
     QObject(parent),
     _availablePorts(portsList),
@@ -191,25 +209,17 @@ void SimpleTerminal::setEOM(QString newEOM)
 void SimpleTerminal::resetHistoryIdx()
 {
     _inputHistoryIdx = _inputHistory.size();
-
-    qDebug() << "History idx: " << _inputHistoryIdx;
 }
 
 //**********************************************************************************************************************
 void SimpleTerminal::parseInput(const QString &msg)
 {
     if (msg.startsWith('/'))
-    {
-        processCommand(msg.mid(1));
-    }
+        processCommand(msg);
     else if (msg.startsWith("\\/"))
-    {
         write(msg.mid(1));
-    }
     else
-    {
         write(msg);
-    }
 
     // Add to history
     if (_inputHistory.size() >= MAX_INPUT_HISTORY_LEN)
@@ -217,8 +227,6 @@ void SimpleTerminal::parseInput(const QString &msg)
 
     _inputHistory << msg;
     _inputHistoryIdx = _inputHistory.size();
-
-    qDebug() << "History idx: " << _inputHistoryIdx;
 }
 
 //**********************************************************************************************************************
@@ -285,8 +293,6 @@ QString SimpleTerminal::getPrevHistory()
             _inputHistoryIdx = 0;
 
         retval = _inputHistory[_inputHistoryIdx];
-
-        qDebug() << "History idx: " << _inputHistoryIdx;
     }
 
     return retval;
@@ -306,8 +312,6 @@ QString SimpleTerminal::getNextHistory()
         }
         else
             retval = _inputHistory[_inputHistoryIdx];
-
-        qDebug() << "History idx: " << _inputHistoryIdx;
     }
 
     return retval;
@@ -327,6 +331,9 @@ void SimpleTerminal::connect()
     {
         qWarning() << "Could not connect\nError code: " << _port->error() << "\nError description: "
                    << _port->errorString();
+
+        appendDspText(DspType::ERROR, "Connect failed");
+        setErrorText("Connect error");
     }
 }
 
@@ -347,6 +354,7 @@ void SimpleTerminal::write(const QString &msg)
 
     qDebug() << "Write:" << txMsg << QByteArray(msg.toLocal8Bit()).toHex();
 
+    appendDspText(DspType::WRITE_MESSAGE, txMsg);
     if (_port->isOpen())
         _port->write((txMsg).toLocal8Bit());
     else
@@ -355,8 +363,67 @@ void SimpleTerminal::write(const QString &msg)
         appendDspText(DspType::ERROR, "Port is not open");
         setErrorText("Error writing");
     }
+}
 
-    appendDspText(DspType::WRITE_MESSAGE, txMsg);
+void SimpleTerminal::cmdClear(SimpleTerminal &st, const QStringList &)
+{
+    st.clearDspText();
+}
+
+//**********************************************************************************************************************
+void SimpleTerminal::cmdConnect(SimpleTerminal &st, const QStringList &args)
+{
+    if (args.size() > 0)
+    {
+        st.setPort(args[0]);
+        st.connect();
+    }
+    else
+    {
+        st.appendDspText(DspType::ERROR, "Wrong number of arguments");
+    }
+}
+
+//**********************************************************************************************************************
+void SimpleTerminal::cmdDisconnect(SimpleTerminal &st, const QStringList &)
+{
+    st.disconnect();
+}
+
+//**********************************************************************************************************************
+void SimpleTerminal::cmdQuit(SimpleTerminal &, const QStringList &)
+{
+    QApplication::quit();
+}
+
+//**********************************************************************************************************************
+void SimpleTerminal::cmdHelp(SimpleTerminal &st, const QStringList &args)
+{
+    if (args.size() > 0)
+    {
+        if (cmdHelpMap.contains(args[0]))
+        {
+            QStringList help = cmdHelpMap.value(args[0]);
+
+            st.appendDspText(DspType::COMMAND, help[1]);
+            st.appendDspText(DspType::COMMAND, "Usage: " + args[0] + " " + help[0]);
+        }
+        else
+            st.appendDspText(DspType::ERROR, "Unkown command");
+    }
+    else
+    {
+        QMap<QString, QStringList>::const_iterator cmd = cmdHelpMap.constBegin();
+        while (cmd != cmdHelpMap.constEnd())
+        {
+            QStringList help = cmd.value();
+            QString cmdName = cmd.key();
+
+            st.appendDspText(DspType::COMMAND, cmdName + " - " + help[1]);
+
+            ++cmd;
+        }
+    }
 }
 
 //**********************************************************************************************************************
@@ -367,30 +434,22 @@ void SimpleTerminal::processCommand(const QString &cmd)
     if (cmd.length() < 1)
         return; // Do nothing if there is no command
 
-    DspType dspType = DspType::COMMAND;
+    appendDspText(DspType::COMMAND, cmd);
     QStringList cmdList = cmd.split(' '); // Command is first item, parameters are what's left
-    if (cmdList[0] == "connect")
+    QString cmdName = cmdList[0];
+    cmdList.removeFirst();
+    QStringList &args = cmdList;
+    if (cmdMap.contains(cmdName))
     {
-        if (cmdList.size() > 1)
-        {
-            setPort(cmdList[1]);
-            connect();
-        }
-    }
-    else if (cmdList[0] == "disconnect")
-    {
-        disconnect();
-    }
-    else if (cmdList[0] == "quit")
-    {
-        QApplication::quit();
+        CmdFunc cmdFunc = (cmdMap.value(cmdName));
+
+        Q_CHECK_PTR(cmdFunc);
+        cmdFunc(*this, args);
     }
     else
     {
-        dspType = DspType::ERROR;
+        appendDspText(DspType::ERROR, "Invalid command");
     }
-
-    appendDspText(dspType, cmd);
 }
 
 //**********************************************************************************************************************
