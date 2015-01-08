@@ -51,6 +51,7 @@ public:
         READ_MESSAGE,
         WRITE_MESSAGE,
         COMMAND,
+        COMMAND_RSP,
         ERROR
     };
 

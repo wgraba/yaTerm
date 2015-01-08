@@ -136,7 +136,21 @@ void SimpleTerminal::appendDspText(DspType type, const QString &text)
 
         case DspType::COMMAND:
         {
-            QString msg = "<p style = \"color: blue;\"><i>" + sanitizedText + "</i></p>";
+            QString msg = "<p style = \"color: blue;\"><b>$ " + sanitizedText + "</b></p>";
+            if (isReading)
+            {
+                dspText = readMsgPost + msg;
+                isReading = false;
+            }
+            else
+                dspText = msg;
+
+            break;
+        }
+
+        case DspType::COMMAND_RSP:
+        {
+            QString msg = "<p style = \"color: blue; margin-left: 25px;\">" + sanitizedText + "</p>";
             if (isReading)
             {
                 dspText = readMsgPost + msg;
@@ -150,7 +164,7 @@ void SimpleTerminal::appendDspText(DspType type, const QString &text)
 
         case DspType::ERROR:
         {
-            QString msg = "<p style = \"color: red;\"><i>ERROR: " + sanitizedText + "</i></p>";
+            QString msg = "<p style = \"color: red; margin-left: 25px;\">ERROR: " + sanitizedText + "</p>";
             if (isReading)
             {
                 dspText = readMsgPost + msg;
@@ -405,8 +419,8 @@ void SimpleTerminal::cmdHelp(SimpleTerminal &st, const QStringList &args)
         {
             QStringList help = cmdHelpMap.value(args[0]);
 
-            st.appendDspText(DspType::COMMAND, help[1]);
-            st.appendDspText(DspType::COMMAND, "Usage: " + args[0] + " " + help[0]);
+            st.appendDspText(DspType::COMMAND_RSP, help[1]);
+            st.appendDspText(DspType::COMMAND_RSP, "Usage: " + args[0] + " " + help[0]);
         }
         else
             st.appendDspText(DspType::ERROR, "Unkown command");
@@ -419,7 +433,7 @@ void SimpleTerminal::cmdHelp(SimpleTerminal &st, const QStringList &args)
             QStringList help = cmd.value();
             QString cmdName = cmd.key();
 
-            st.appendDspText(DspType::COMMAND, cmdName + " - " + help[1]);
+            st.appendDspText(DspType::COMMAND_RSP, cmdName + " - " + help[1]);
 
             ++cmd;
         }
@@ -435,6 +449,7 @@ void SimpleTerminal::processCommand(const QString &cmd)
         return; // Do nothing if there is no command
 
     appendDspText(DspType::COMMAND, cmd);
+
     QStringList cmdList = cmd.split(' '); // Command is first item, parameters are what's left
     QString cmdName = cmdList[0];
     cmdList.removeFirst();
