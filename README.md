@@ -35,7 +35,7 @@ Prerequesites
 * Qt 5.4+
 * Appropriate compiler such as GCC 4.8+
 
-The easiest way to get all the prerequisites is to download the [Qt SDK](http://qt-project.org/downloads)
+The easiest way to get all the prerequisites is to download the [Qt SDK](http://qt-project.org/downloads).
 
 
 Building
