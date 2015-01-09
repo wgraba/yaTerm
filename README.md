@@ -3,7 +3,7 @@ yaTerm
 
 **y**et **a**nother Serial **Term**inal
 
-![yaTerm Example](https://lh5.googleusercontent.com/-TNKHbdOqvWM/VK4kNwvnhnI/AAAAAAAAD44/gLz8Ti9Kg5s/w642-h520-no/yaTerm_screenshot.png)
+![yaTerm in Action](https://lh5.googleusercontent.com/-p9PyEa4XW_k/VK9s3u76k3I/AAAAAAAAD5g/9iwXxrqc1bI/w640-h543-no/yaTerm_screenshot2.png)
 
 Description
 ===========
@@ -20,25 +20,30 @@ Features
 * Input history (use 'up' and 'down' keys with input window focused)
 * Simple command-line interface (type "/help" into input window)
 * Minor formatting applied to output to visually distiguish sent text from received text, commands, errors, etc
-* Selectable auto-scrolling of output window
+* Settable auto-scrolling of output window
+* Visual cues to help distinguish input from output, commands from command response, errors, etc.
 
-Prerequisites
-=============
-
-* Qt 5.4+
-* Appropriate compiler such as GCC 4.8+
-
-The easiest way to get all the prerequisites is to download the [Qt SDK](http://qt-project.org/downloads).
 
 Developing
 ==========
 
 Nothing too special about development; follows the standard Qt development process. I personally like to use [Qt Creator](http://qt-project.org/wiki/Category:Tools::QtCreator) for an IDE (also available as part of the [Qt SDK](http://qt-project.org/downloads)).
 
+Prerequesites
+-------------
+
+* Qt 5.4+
+* Appropriate compiler such as GCC 4.8+
+
+The easiest way to get all the prerequisites is to download the [Qt SDK](http://qt-project.org/downloads)
+
+
 Building
 ========
 
 * Clone the repository using `git clone https://github.com/wgraba/yaTerm.git`
+
+The rest of the building process is dependent on the architecture.
 
 Linux
 -----

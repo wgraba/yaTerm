@@ -96,7 +96,6 @@ SimpleTerminal::~SimpleTerminal()
 //**********************************************************************************************************************
 void SimpleTerminal::appendDspText(DspType type, const QString &text)
 {
-    static const QString readMsgPre = "<p>";
     static const QString readMsgPost = "</p>";
 
     QString sanitizedText = text.toHtmlEscaped();
@@ -108,6 +107,7 @@ void SimpleTerminal::appendDspText(DspType type, const QString &text)
     {
         case DspType::READ_MESSAGE:
         {
+            static const QString readMsgPre = "<p style = \"margin-left: 25px;\">";
             sanitizedText.replace(_eom, _eom + readMsgPost + readMsgPre);
             if (!isReading)
             {
@@ -346,8 +346,7 @@ void SimpleTerminal::connect()
         qWarning() << "Could not connect\nError code: " << _port->error() << "\nError description: "
                    << _port->errorString();
 
-        appendDspText(DspType::ERROR, "Connect failed");
-        setErrorText("Connect error");
+        setError("Connect failed");
     }
 }
 
@@ -374,11 +373,18 @@ void SimpleTerminal::write(const QString &msg)
     else
     {
         qWarning() << "Port is not open";
-        appendDspText(DspType::ERROR, "Port is not open");
-        setErrorText("Error writing");
+        setError("Port is not open");
     }
 }
 
+//**********************************************************************************************************************
+void SimpleTerminal::setError(const QString &msg)
+{
+    // @todo: Do something more in the future...like an error queue?
+    appendDspText(DspType::ERROR, msg);
+}
+
+//**********************************************************************************************************************
 void SimpleTerminal::cmdClear(SimpleTerminal &st, const QStringList &)
 {
     st.clearDspText();
@@ -394,7 +400,7 @@ void SimpleTerminal::cmdConnect(SimpleTerminal &st, const QStringList &args)
     }
     else
     {
-        st.appendDspText(DspType::ERROR, "Wrong number of arguments");
+        st.setError("Wrong number of arguments");
     }
 }
 
@@ -423,7 +429,7 @@ void SimpleTerminal::cmdHelp(SimpleTerminal &st, const QStringList &args)
             st.appendDspText(DspType::COMMAND_RSP, "Usage: " + args[0] + " " + help[0]);
         }
         else
-            st.appendDspText(DspType::ERROR, "Unkown command");
+            st.setError("Unkown command");
     }
     else
     {
@@ -463,7 +469,7 @@ void SimpleTerminal::processCommand(const QString &cmd)
     }
     else
     {
-        appendDspText(DspType::ERROR, "Invalid command");
+        setError("Invalid command");
     }
 }
 
@@ -477,14 +483,14 @@ void SimpleTerminal::read()
 }
 
 //**********************************************************************************************************************
-void SimpleTerminal::setStatusText(QString text)
+void SimpleTerminal::setStatusText(const QString &text)
 {
     _statusText = text;
     emit statusTextChanged();
 }
 
 //**********************************************************************************************************************
-void SimpleTerminal::setErrorText(QString text)
+void SimpleTerminal::setErrorText(const QString &text)
 {
     _errorText = text;
     emit errorTextChanged();

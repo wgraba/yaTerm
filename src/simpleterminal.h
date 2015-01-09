@@ -98,10 +98,11 @@ public slots:
 private:
     static const int MAX_INPUT_HISTORY_LEN = 64;
 
-    void setStatusText(QString text);
-    void setErrorText(QString text);
+    void setStatusText(const QString &text);
+    void setErrorText(const QString &text);
     void processCommand(const QString &cmd);
     void write(const QString &msg);
+    void setError(const QString &msg);
 
     // Commands
     static void cmdClear(SimpleTerminal &st, const QStringList &);
