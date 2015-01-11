@@ -50,7 +50,14 @@ int main(int argc, char *argv[])
 //    QObject *item = engine.findChild<QObject *>("root");
     StringListModel portsListModel;
     ListModel<qint32> baudListModel;
-    QList<qint32> standardBaudRates(QSerialPortInfo::standardBaudRates());
+    QList<qint32> standardBaudRates = { QSerialPort::Baud1200,
+                                        QSerialPort::Baud2400,
+                                        QSerialPort::Baud4800,
+                                        QSerialPort::Baud9600,
+                                        QSerialPort::Baud19200,
+                                        QSerialPort::Baud38400,
+                                        QSerialPort::Baud57600,
+                                        QSerialPort::Baud115200};
     baudListModel.setList(standardBaudRates);
 
     QSerialPort serialPort;

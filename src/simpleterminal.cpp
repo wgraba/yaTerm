@@ -72,7 +72,7 @@ SimpleTerminal::SimpleTerminal(QSerialPort *port, StringListModel *portsList, QO
     else
     {
         _port->setPortName(_availablePorts->getStringList()[0]);
-        _port->setBaudRate(QSerialPortInfo::standardBaudRates()[0]);
+        _port->setBaudRate(QSerialPort::Baud9600);
     }
 
     refreshStatusText();
