@@ -31,7 +31,7 @@
 
 //**********************************************************************************************************************
 const QMap<QString, SimpleTerminal::CmdFunc> SimpleTerminal::cmdMap = {
-    { "/clear", SimpleTerminal::cmdClear },
+//    { "/clear", SimpleTerminal::cmdClear },
     { "/connect", SimpleTerminal::cmdConnect },
     { "/disconnect", SimpleTerminal::cmdDisconnect },
     { "/help", SimpleTerminal::cmdHelp },
@@ -40,7 +40,7 @@ const QMap<QString, SimpleTerminal::CmdFunc> SimpleTerminal::cmdMap = {
 
 //**********************************************************************************************************************
 const QMap<QString, QStringList> SimpleTerminal::cmdHelpMap = {
-    { "/clear", { "", "Clear the screen" } },
+//    { "/clear", { "", "Clear the screen" } },
     { "/connect", { "portName", "Connect to port" } },
     { "/disconnect", { "", "Disconnect from port" } },
     { "/help", { "[command]", "Get help" } },
@@ -51,7 +51,6 @@ const QMap<QString, QStringList> SimpleTerminal::cmdHelpMap = {
 SimpleTerminal::SimpleTerminal(QSerialPort *port, StringListModel *portsList, QObject *parent) :
     QObject(parent),
     _availablePorts(portsList),
-    _displayText(QString()),
     _statusText(QString()),
     _port(port),
     _eom("\r"),
@@ -96,7 +95,7 @@ SimpleTerminal::~SimpleTerminal()
 //**********************************************************************************************************************
 void SimpleTerminal::appendDspText(DspType type, const QString &text)
 {
-    static const QString readMsgPost = "</p>";
+    static const QString readMsgPost = "</span><br>";
 
     QString sanitizedText = text.toHtmlEscaped();
 
@@ -107,7 +106,7 @@ void SimpleTerminal::appendDspText(DspType type, const QString &text)
     {
         case DspType::READ_MESSAGE:
         {
-            static const QString readMsgPre = "<p style = \"margin-left: 25px;\">";
+            static const QString readMsgPre = "<span>";
             sanitizedText.replace(_eom, _eom + readMsgPost + readMsgPre);
             if (!isReading)
             {
@@ -122,7 +121,7 @@ void SimpleTerminal::appendDspText(DspType type, const QString &text)
 
         case DspType::WRITE_MESSAGE:
         {
-            QString msg = "<p><b>" + sanitizedText + "</b></p>";
+            QString msg = "<span><b>" + sanitizedText + "</b></span><br>";
             if (isReading)
             {
                 dspText = readMsgPost + msg;
@@ -136,7 +135,7 @@ void SimpleTerminal::appendDspText(DspType type, const QString &text)
 
         case DspType::COMMAND:
         {
-            QString msg = "<p style = \"color: blue;\"><b>$ " + sanitizedText + "</b></p>";
+            QString msg = "<span style = \"color: blue;\"><b>$ " + sanitizedText + "</b></span><br>";
             if (isReading)
             {
                 dspText = readMsgPost + msg;
@@ -150,7 +149,7 @@ void SimpleTerminal::appendDspText(DspType type, const QString &text)
 
         case DspType::COMMAND_RSP:
         {
-            QString msg = "<p style = \"color: blue; margin-left: 25px;\">" + sanitizedText + "</p>";
+            QString msg = "<span style = \"color: blue;\">" + sanitizedText + "</span><br>";
             if (isReading)
             {
                 dspText = readMsgPost + msg;
@@ -164,7 +163,7 @@ void SimpleTerminal::appendDspText(DspType type, const QString &text)
 
         case DspType::ERROR:
         {
-            QString msg = "<p style = \"color: red; margin-left: 25px;\">ERROR: " + sanitizedText + "</p>";
+            QString msg = "<span style = \"color: red;\">ERROR: " + sanitizedText + "</span><br>";
             if (isReading)
             {
                 dspText = readMsgPost + msg;
@@ -177,7 +176,7 @@ void SimpleTerminal::appendDspText(DspType type, const QString &text)
         }
 
         default:
-            QString msg = "<p>" + sanitizedText + "</p>";
+            QString msg = "<span>" + sanitizedText + "</span><br>";
             if (isReading)
             {
                 dspText = readMsgPost + msg;
@@ -189,17 +188,7 @@ void SimpleTerminal::appendDspText(DspType type, const QString &text)
             break;
     }
 
-    _displayText += dspText;
-
-    emit displayTextChanged();
-}
-
-//**********************************************************************************************************************
-void SimpleTerminal::clearDspText()
-{
-    _displayText.clear();
-
-    emit displayTextChanged();
+    emit newDisplayText(dspText);
 }
 
 //**********************************************************************************************************************
@@ -250,12 +239,6 @@ void SimpleTerminal::setPort(QString port)
     qDebug() << "Port set to " << _port->portName();
 
     refreshStatusText();
-}
-
-//**********************************************************************************************************************
-QString SimpleTerminal::displayText() const
-{
-    return _displayText;
 }
 
 //**********************************************************************************************************************
@@ -385,12 +368,6 @@ void SimpleTerminal::setError(const QString &msg)
 }
 
 //**********************************************************************************************************************
-void SimpleTerminal::cmdClear(SimpleTerminal &st, const QStringList &)
-{
-    st.clearDspText();
-}
-
-//**********************************************************************************************************************
 void SimpleTerminal::cmdConnect(SimpleTerminal &st, const QStringList &args)
 {
     if (args.size() > 0)
@@ -477,7 +454,7 @@ void SimpleTerminal::processCommand(const QString &cmd)
 void SimpleTerminal::read()
 {
     QByteArray data = _port->readAll();
-    qDebug() << "Read: " << data << data.toHex();
+//    qDebug() << "Read: " << data << data.toHex();
 
     appendDspText(DspType::READ_MESSAGE, QString(data));
 }
@@ -505,7 +482,7 @@ void SimpleTerminal::refreshStatusText()
     else
         newText += "<strong>Disconnected</strong>";
 
-    newText += " " + (_port->portName() == "" ? "None" : _port->portName());
+    newText += " " + (_port->portName() == "" ? "None" : _port->portName()) + " " + QString::number( _port->baudRate());
 
     QString dataBits = "-";
     switch (_port->dataBits())

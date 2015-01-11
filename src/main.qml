@@ -79,8 +79,9 @@ ApplicationWindow {
             MenuItem {
                 text: qsTr("&Clear")
                 onTriggered: {
-                    consoleOutput.cursorPosition = 0 // Set valid cursor position post-reset
-                    simpleTerminal.displayText = undefined // Trigger reset
+//                    consoleOutput.cursorPosition = 0
+//                    consoleOutput.text = ""
+                    consoleOutput.remove(0, consoleOutput.length)
                 }
             }
         }
@@ -140,6 +141,8 @@ ApplicationWindow {
 
         property bool autoscroll: true
 
+        menu: null
+
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: consoleInput.top
@@ -147,20 +150,18 @@ ApplicationWindow {
 
         KeyNavigation.tab: consoleInput
 
-        text: simpleTerminal.displayText
-        onTextChanged: {
-            // Constrain history length
-            if (length > simpleTerminal.maxDspTxtCharsChanged)
-            {
-                remove(0, length - simpleTerminal.maxDspTxtCharsChanged)
-            }
+        Connections {
+            target: simpleTerminal
+            onNewDisplayText: {
+                if (consoleOutput.length > simpleTerminal.maxDspTxtChars) {
+                    consoleOutput.remove(0, consoleOutput.length - simpleTerminal.maxDspTxtChars)
+                }
 
-            if (autoscroll)
-                cursorPosition = length // Update cursor to end; may have control over this in the future
-        }
-        onFocusChanged: {
-            if (autoscroll)
-                autoscroll = false
+                consoleOutput.insert(consoleOutput.length, text)
+                if (consoleOutput.autoscroll) {
+                    consoleOutput.cursorPosition = consoleOutput.length
+                }
+            }
         }
 
         readOnly: true

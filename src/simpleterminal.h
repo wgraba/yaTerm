@@ -38,8 +38,7 @@ class StringListModel;
 class SimpleTerminal : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString displayText MEMBER _displayText RESET clearDspText NOTIFY displayTextChanged)
-    Q_PROPERTY(u_int32_t maxDspTxtChars MEMBER _maxDisplayTextChars NOTIFY maxDspTxtCharsChanged)
+    Q_PROPERTY(int maxDspTxtChars MEMBER _maxDisplayTextChars NOTIFY maxDspTxtCharsChanged)
     Q_PROPERTY(QString statusText READ statusText NOTIFY statusTextChanged)
     Q_PROPERTY(QString errorText READ errorText NOTIFY errorTextChanged)
     Q_PROPERTY(bool connState READ isConnected NOTIFY connStateChanged)
@@ -58,7 +57,6 @@ public:
     explicit SimpleTerminal(QSerialPort *port, StringListModel *portsList, QObject *parent = 0);
     ~SimpleTerminal();
 
-    QString displayText() const;
     QString statusText() const;
     QString errorText() const;
     bool isConnected() const;
@@ -68,7 +66,6 @@ public:
     Q_INVOKABLE QString getPrevHistory();
     Q_INVOKABLE QString getNextHistory();
 
-    void clearDspText();
     void appendDspText(DspType type, const QString &text);
     void generatePortList();
     void setEOM(QString newEOM);
@@ -77,12 +74,12 @@ public:
     StringListModel *_availablePorts;
 
 signals:
-    void displayTextChanged();
     void statusTextChanged();
     void errorTextChanged();
     void connStateChanged();
     void eomChanged();
     void maxDspTxtCharsChanged();
+    void newDisplayText(QString text);
 
 public slots:
     void parseInput(const QString &msg);
@@ -105,13 +102,12 @@ private:
     void setError(const QString &msg);
 
     // Commands
-    static void cmdClear(SimpleTerminal &st, const QStringList &);
+//    static void cmdClear(SimpleTerminal &st, const QStringList &);
     static void cmdConnect(SimpleTerminal &st, const QStringList &args);
     static void cmdDisconnect(SimpleTerminal &st, const QStringList &);
     static void cmdQuit(SimpleTerminal &, const QStringList &);
     static void cmdHelp(SimpleTerminal &st, const QStringList &args);
 
-    QString _displayText;
     QString _statusText;
     QString _errorText;
     QSerialPort *_port;
@@ -120,7 +116,7 @@ private:
     QStringList _inputHistory;
     int _inputHistoryIdx;
 
-    u_int32_t _maxDisplayTextChars = 1024 * 16;
+    int _maxDisplayTextChars = 1024 * 8;
 
     typedef void (*CmdFunc)(SimpleTerminal &, const QStringList &);
     static const QMap<QString, CmdFunc> cmdMap;
