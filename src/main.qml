@@ -55,7 +55,7 @@ ApplicationWindow {
             }
 
             MenuItem {
-                text: qsTr("&Settings...")
+                text: qsTr("&Connection settings...")
                 onTriggered: settingsDialog.open()
                 enabled: !simpleTerminal.connState
             }
@@ -83,16 +83,6 @@ ApplicationWindow {
                 }
             }
 
-            MenuItem {
-                text : qsTr("&Word Wrap")
-                onTriggered: {
-                    consoleOutput.wrapMode = consoleOutput.wrapMode == TextEdit.NoWrap ?
-                                TextEdit.WrapAtWordBoundaryOrAnywhere : TextEdit.NoWrap
-                }
-                checked: consoleOutput.wrapMode == TextEdit.WrapAtWordBoundaryOrAnywhere
-                checkable: true
-            }
-
 //            MenuItem {
 //                text: qsTr("&Source")
 //                onTriggered: {
@@ -103,6 +93,26 @@ ApplicationWindow {
 //                checked: (consoleOutput.textFormat == TextEdit.PlainText)
 //                checkable: true
 //            }
+
+            MenuItem {
+                text : qsTr("&Wrap")
+                onTriggered: {
+                    consoleOutput.wrapMode = consoleOutput.wrapMode == TextEdit.NoWrap ?
+                                TextEdit.WrapAtWordBoundaryOrAnywhere : TextEdit.NoWrap
+                }
+                checked: consoleOutput.wrapMode == TextEdit.WrapAtWordBoundaryOrAnywhere
+                checkable: true
+            }
+
+//            MenuItem {
+//                text: qsTr("&Font...")
+//                onTriggered: fontDialog.open()
+//            }
+
+            MenuItem {
+                text: qsTr("&Preferences...")
+                onTriggered: preferencesDialog.open()
+            }
         }
 
         Menu {
@@ -111,6 +121,11 @@ ApplicationWindow {
             MenuItem {
                 text: qsTr("&About...")
                 onTriggered: aboutDialog.open()
+            }
+
+            MenuItem {
+                text: qsTr("&Manual...")
+                enabled: false
             }
         }
     }
@@ -507,6 +522,41 @@ ApplicationWindow {
                 model: ["CR", "LF", "LF+CR"]
                 currentIndex: 0
             }
+        }
+    }
+
+    Dialog {
+        id: preferencesDialog
+        modality: Qt.WindowModal
+        standardButtons: StandardButton.Apply | StandardButton.Cancel
+        title: qsTr("Preferences")
+        width: preferencesLayout.width + 50
+
+        GridLayout {
+            id: preferencesLayout
+            columns: 3
+
+            Label { text: "<strong>Font:</strong>" }
+            Label { text: fontDialog.font.family + " " + fontDialog.font.pointSize }
+            Button {
+                text: "Font..."
+                onClicked: fontDialog.open()
+            }
+        }
+
+        onApply: {
+            consoleOutput.font.family = fontDialog.font.family
+            consoleOutput.font.pointSize = fontDialog.font.pointSize
+        }
+    }
+
+    FontDialog {
+        id: fontDialog
+        title: "Please choose a font..."
+        font: consoleOutput.font
+        onAccepted: {
+            console.log("New font: " + fontDialog.font)
+//            consoleOutput.font = fontDialog.font
         }
     }
 }

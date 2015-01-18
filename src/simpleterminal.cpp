@@ -382,7 +382,8 @@ void SimpleTerminal::cmdHelp(SimpleTerminal &st, const QStringList &args)
         {
             QStringList help = cmdHelpMap.value(args[0]);
 
-            rspStr.append("Usage: " + args[0] + " <i>" + help[0] + "</i><br><br>");
+            rspStr.append("<span style=\"color: BlueViolet;\">Usage</span>: " + args[0] + " <i>" + help[0] +
+                    "</i><br><br>");
             rspStr.append(help[1]);
         }
         else
@@ -402,7 +403,7 @@ void SimpleTerminal::cmdHelp(SimpleTerminal &st, const QStringList &args)
             else
                 rspStr.append("<br>");
 
-            rspStr.append("<i>" + cmdName + "</i>: " + help[1]);
+            rspStr.append("<span style=\"color: BlueViolet;\">" + cmdName + "</span>: " + help[1]);
 
             ++cmd;
         }
