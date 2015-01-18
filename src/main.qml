@@ -79,11 +79,30 @@ ApplicationWindow {
             MenuItem {
                 text: qsTr("&Clear")
                 onTriggered: {
-//                    consoleOutput.cursorPosition = 0
-//                    consoleOutput.text = ""
                     consoleOutput.remove(0, consoleOutput.length)
                 }
             }
+
+            MenuItem {
+                text : qsTr("&Word Wrap")
+                onTriggered: {
+                    consoleOutput.wrapMode = consoleOutput.wrapMode == TextEdit.NoWrap ?
+                                TextEdit.WrapAtWordBoundaryOrAnywhere : TextEdit.NoWrap
+                }
+                checked: consoleOutput.wrapMode == TextEdit.WrapAtWordBoundaryOrAnywhere
+                checkable: true
+            }
+
+//            MenuItem {
+//                text: qsTr("&Source")
+//                onTriggered: {
+//                    consoleOutput.textFormat = (consoleOutput.textFormat == TextEdit.RichText ?
+//                                                    TextEdit.PlainText : TextEdit.RichText)
+//                    consoleInput.readOnly = (consoleOutput.textFormat == TextEdit.PlainText)
+//                }
+//                checked: (consoleOutput.textFormat == TextEdit.PlainText)
+//                checkable: true
+//            }
         }
 
         Menu {
@@ -152,7 +171,7 @@ ApplicationWindow {
 
         Connections {
             target: simpleTerminal
-            onNewDisplayText: {
+            onInsertDisplayText: {
                 if (consoleOutput.length > simpleTerminal.maxDspTxtChars) {
                     consoleOutput.remove(0, consoleOutput.length - simpleTerminal.maxDspTxtChars)
                 }
@@ -162,11 +181,26 @@ ApplicationWindow {
                     consoleOutput.cursorPosition = consoleOutput.length
                 }
             }
+
+            onAppendDisplayText: {
+                if (consoleOutput.length > simpleTerminal.maxDspTxtChars) {
+                    consoleOutput.remove(0, consoleOutput.length - simpleTerminal.maxDspTxtChars)
+                }
+
+                consoleOutput.append(text)
+                if (consoleOutput.autoscroll) {
+                    consoleOutput.cursorPosition = consoleOutput.length
+                }
+            }
+
+            onClearDisplayText: {
+                consoleOutput.remove(0, consoleOutput.length)
+            }
         }
 
         readOnly: true
         textFormat: TextEdit.RichText
-        wrapMode: TextEdit.Wrap
+        wrapMode: TextEdit.WrapAtWordBoundaryOrAnywhere
 
         font.family: "Monospace"
         font.pointSize: 10

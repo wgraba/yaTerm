@@ -3,7 +3,7 @@ yaTerm
 
 **y**et **a**nother Serial **Term**inal
 
-![yaTerm in Action](https://lh5.googleusercontent.com/--n2aL0gl-c8/VLS7xyBjxdI/AAAAAAAAD6I/FvWe_ZCznVk/w656-h534-no/yaTerm_screenshot3.png)
+![yaTerm in action](https://lh5.googleusercontent.com/--n2aL0gl-c8/VLS7xyBjxdI/AAAAAAAAD6I/FvWe_ZCznVk/w656-h534-no/yaTerm_screenshot3.png)
 
 Description
 ===========
@@ -65,4 +65,9 @@ make
 Windows
 -------
 
-TBD. I have done some preliminary testing and it looks good so far. Refer to the [Qt Docs](http://qt-project.org/doc/) for more information; it should build like a regular Qt project on Windows.
+TBD. I have done some preliminary testing and it looks good so far. Refer to the [Qt Docs](http://qt-project.org/doc/) for more information; it should build like a regular Qt project on Windows; just have to change the `-spec` option.
+
+OSX
+---
+
+TBD.

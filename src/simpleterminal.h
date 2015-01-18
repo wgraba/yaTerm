@@ -66,7 +66,7 @@ public:
     Q_INVOKABLE QString getPrevHistory();
     Q_INVOKABLE QString getNextHistory();
 
-    void appendDspText(DspType type, const QString &text);
+    void modifyDspText(DspType type, const QString &text);
     void generatePortList();
     void setEOM(QString newEOM);
     Q_INVOKABLE void resetHistoryIdx();
@@ -79,7 +79,9 @@ signals:
     void connStateChanged();
     void eomChanged();
     void maxDspTxtCharsChanged();
-    void newDisplayText(QString text);
+    void insertDisplayText(QString text);
+    void appendDisplayText(QString text);
+    void clearDisplayText();
 
 public slots:
     void parseInput(const QString &msg);
@@ -102,7 +104,7 @@ private:
     void setError(const QString &msg);
 
     // Commands
-//    static void cmdClear(SimpleTerminal &st, const QStringList &);
+    static void cmdClear(SimpleTerminal &st, const QStringList &);
     static void cmdConnect(SimpleTerminal &st, const QStringList &args);
     static void cmdDisconnect(SimpleTerminal &st, const QStringList &);
     static void cmdQuit(SimpleTerminal &, const QStringList &);

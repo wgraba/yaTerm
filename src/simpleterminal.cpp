@@ -31,7 +31,7 @@
 
 //**********************************************************************************************************************
 const QMap<QString, SimpleTerminal::CmdFunc> SimpleTerminal::cmdMap = {
-//    { "/clear", SimpleTerminal::cmdClear },
+    { "/clear", SimpleTerminal::cmdClear },
     { "/connect", SimpleTerminal::cmdConnect },
     { "/disconnect", SimpleTerminal::cmdDisconnect },
     { "/help", SimpleTerminal::cmdHelp },
@@ -40,7 +40,7 @@ const QMap<QString, SimpleTerminal::CmdFunc> SimpleTerminal::cmdMap = {
 
 //**********************************************************************************************************************
 const QMap<QString, QStringList> SimpleTerminal::cmdHelpMap = {
-//    { "/clear", { "", "Clear the screen" } },
+    { "/clear", { "", "Clear the screen" } },
     { "/connect", { "portName", "Connect to port" } },
     { "/disconnect", { "", "Disconnect from port" } },
     { "/help", { "[command]", "Get help" } },
@@ -93,102 +93,75 @@ SimpleTerminal::~SimpleTerminal()
 }
 
 //**********************************************************************************************************************
-void SimpleTerminal::appendDspText(DspType type, const QString &text)
+void SimpleTerminal::modifyDspText(DspType type, const QString &text)
 {
-    static const QString readMsgPost = "</span><br>";
+    static bool isReading = false;
+    if (isReading && type != DspType::READ_MESSAGE)
+        isReading = false;
 
     QString sanitizedText = text.toHtmlEscaped();
 
     // Format text according to type of message
-    QString dspText;
-    static bool isReading = false;
     switch(type)
     {
         case DspType::READ_MESSAGE:
         {
-            static const QString readMsgPre = "<span>";
-            sanitizedText.replace(_eom, _eom + readMsgPost + readMsgPre);
-            if (!isReading)
+            sanitizedText.replace(_eom, _eom + "<br>");
+
+            if (isReading)
+                emit insertDisplayText(sanitizedText);
+            else
             {
-                dspText = readMsgPre + sanitizedText;
+                emit appendDisplayText("<br>" + sanitizedText);
                 isReading = true;
             }
-            else
-                dspText = sanitizedText;
 
             break;
         }
 
         case DspType::WRITE_MESSAGE:
         {
-            QString msg = "<span><b>" + sanitizedText + "</b></span><br>";
-            if (isReading)
-            {
-                dspText = readMsgPost + msg;
-                isReading = false;
-            }
-            else
-                dspText = msg;
+            QString msg = "<br><span><b>" + sanitizedText + "</b></span>";
+
+            emit appendDisplayText(msg);
 
             break;
         }
 
         case DspType::COMMAND:
         {
-            QString msg = "<span style = \"color: blue;\"><b>$ " + sanitizedText + "</b></span><br>";
-            if (isReading)
-            {
-                dspText = readMsgPost + msg;
-                isReading = false;
-            }
-            else
-                dspText = msg;
+            QString msg = "<br><span style = \"color: blue;\"><b>$ " + sanitizedText + "</b></span>";
+
+            emit appendDisplayText(msg);
 
             break;
         }
 
         case DspType::COMMAND_RSP:
         {
-            QString msg = "<span style = \"color: blue;\">" + sanitizedText + "</span><br>";
-            if (isReading)
-            {
-                dspText = readMsgPost + msg;
-                isReading = false;
-            }
-            else
-                dspText = msg;
+            QString msg = "<br><span style = \"color: blue;\">" + text + "</span>";
+
+            emit appendDisplayText(msg);
 
             break;
         }
 
         case DspType::ERROR:
         {
-            QString msg = "<span style = \"color: red;\">ERROR: " + sanitizedText + "</span><br>";
-            if (isReading)
-            {
-                dspText = readMsgPost + msg;
-                isReading = false;
-            }
-            else
-                dspText = msg;
+            QString msg = "<br><span style = \"color: red;\">ERROR: " + text + "</span>";
+
+            emit appendDisplayText(msg);
 
             break;
         }
 
         default:
-            QString msg = "<span>" + sanitizedText + "</span><br>";
-            if (isReading)
-            {
-                dspText = readMsgPost + msg;
-                isReading = false;
-            }
-            else
-                dspText = msg;
+            QString msg = "<br><span>" + sanitizedText + "</span>";
+
+            emit appendDisplayText(msg);
 
             break;
     }
-
-    emit newDisplayText(dspText);
 }
 
 //**********************************************************************************************************************
@@ -350,7 +323,7 @@ void SimpleTerminal::write(const QString &msg)
 
     qDebug() << "Write:" << txMsg << QByteArray(msg.toLocal8Bit()).toHex();
 
-    appendDspText(DspType::WRITE_MESSAGE, txMsg);
+    modifyDspText(DspType::WRITE_MESSAGE, txMsg);
     if (_port->isOpen())
         _port->write((txMsg).toLocal8Bit());
     else
@@ -364,7 +337,13 @@ void SimpleTerminal::write(const QString &msg)
 void SimpleTerminal::setError(const QString &msg)
 {
     // @todo: Do something more in the future...like an error queue?
-    appendDspText(DspType::ERROR, msg);
+    modifyDspText(DspType::ERROR, msg);
+}
+
+//**********************************************************************************************************************
+void SimpleTerminal::cmdClear(SimpleTerminal &st, const QStringList &)
+{
+    emit st.clearDisplayText();
 }
 
 //**********************************************************************************************************************
@@ -396,14 +375,15 @@ void SimpleTerminal::cmdQuit(SimpleTerminal &, const QStringList &)
 //**********************************************************************************************************************
 void SimpleTerminal::cmdHelp(SimpleTerminal &st, const QStringList &args)
 {
+    QString rspStr;
     if (args.size() > 0)
     {
         if (cmdHelpMap.contains(args[0]))
         {
             QStringList help = cmdHelpMap.value(args[0]);
 
-            st.appendDspText(DspType::COMMAND_RSP, help[1]);
-            st.appendDspText(DspType::COMMAND_RSP, "Usage: " + args[0] + " " + help[0]);
+            rspStr.append(help[1] + "<br>");
+            rspStr.append("Usage: " + args[0] + " " + help[0]);
         }
         else
             st.setError("Unkown command");
@@ -411,16 +391,25 @@ void SimpleTerminal::cmdHelp(SimpleTerminal &st, const QStringList &args)
     else
     {
         QMap<QString, QStringList>::const_iterator cmd = cmdHelpMap.constBegin();
+        bool isFirst = true; // @todo: Find a better way
         while (cmd != cmdHelpMap.constEnd())
         {
             QStringList help = cmd.value();
             QString cmdName = cmd.key();
 
-            st.appendDspText(DspType::COMMAND_RSP, cmdName + " - " + help[1]);
+            if (isFirst)
+                isFirst = false;
+            else
+                rspStr.append("<br>");
+
+            rspStr.append(cmdName + " - " + help[1]);
 
             ++cmd;
         }
     }
+
+    if (rspStr.length() > 0)
+        st.modifyDspText(DspType::COMMAND_RSP, rspStr);
 }
 
 //**********************************************************************************************************************
@@ -431,7 +420,7 @@ void SimpleTerminal::processCommand(const QString &cmd)
     if (cmd.length() < 1)
         return; // Do nothing if there is no command
 
-    appendDspText(DspType::COMMAND, cmd);
+    modifyDspText(DspType::COMMAND, cmd);
 
     QStringList cmdList = cmd.split(' '); // Command is first item, parameters are what's left
     QString cmdName = cmdList[0];
@@ -456,7 +445,7 @@ void SimpleTerminal::read()
     QByteArray data = _port->readAll();
 //    qDebug() << "Read: " << data << data.toHex();
 
-    appendDspText(DspType::READ_MESSAGE, QString(data));
+    modifyDspText(DspType::READ_MESSAGE, QString(data));
 }
 
 //**********************************************************************************************************************
