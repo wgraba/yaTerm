@@ -382,8 +382,8 @@ void SimpleTerminal::cmdHelp(SimpleTerminal &st, const QStringList &args)
         {
             QStringList help = cmdHelpMap.value(args[0]);
 
-            rspStr.append(help[1] + "<br>");
-            rspStr.append("Usage: " + args[0] + " " + help[0]);
+            rspStr.append("Usage: " + args[0] + " <i>" + help[0] + "</i><br><br>");
+            rspStr.append(help[1]);
         }
         else
             st.setError("Unkown command");
@@ -402,7 +402,7 @@ void SimpleTerminal::cmdHelp(SimpleTerminal &st, const QStringList &args)
             else
                 rspStr.append("<br>");
 
-            rspStr.append(cmdName + " - " + help[1]);
+            rspStr.append("<i>" + cmdName + "</i>: " + help[1]);
 
             ++cmd;
         }
