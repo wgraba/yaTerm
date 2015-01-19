@@ -55,7 +55,7 @@ ApplicationWindow {
             }
 
             MenuItem {
-                text: qsTr("&Connection settings...")
+                text: qsTr("&Settings...")
                 onTriggered: settingsDialog.open()
                 enabled: !simpleTerminal.connState
             }
@@ -83,6 +83,11 @@ ApplicationWindow {
                 }
             }
 
+            MenuItem {
+                text: qsTr("&Font...")
+                onTriggered: fontDialog.open()
+            }
+
 //            MenuItem {
 //                text: qsTr("&Source")
 //                onTriggered: {
@@ -104,15 +109,6 @@ ApplicationWindow {
                 checkable: true
             }
 
-//            MenuItem {
-//                text: qsTr("&Font...")
-//                onTriggered: fontDialog.open()
-//            }
-
-            MenuItem {
-                text: qsTr("&Preferences...")
-                onTriggered: preferencesDialog.open()
-            }
         }
 
         Menu {
@@ -168,6 +164,7 @@ ApplicationWindow {
 
         KeyNavigation.tab: consoleOutput
         focus: true
+        font: consoleOutput.font
     }
 
     TextArea {
@@ -218,7 +215,8 @@ ApplicationWindow {
         wrapMode: TextEdit.WrapAtWordBoundaryOrAnywhere
 
         font.family: "Monospace"
-        font.pointSize: 10
+        font.pointSize: 11
+        font.weight: Font.Normal
 
     }
 
@@ -525,38 +523,15 @@ ApplicationWindow {
         }
     }
 
-    Dialog {
-        id: preferencesDialog
-        modality: Qt.WindowModal
-        standardButtons: StandardButton.Apply | StandardButton.Cancel
-        title: qsTr("Preferences")
-        width: preferencesLayout.width + 50
-
-        GridLayout {
-            id: preferencesLayout
-            columns: 3
-
-            Label { text: "<strong>Font:</strong>" }
-            Label { text: fontDialog.font.family + " " + fontDialog.font.pointSize }
-            Button {
-                text: "Font..."
-                onClicked: fontDialog.open()
-            }
-        }
-
-        onApply: {
-            consoleOutput.font.family = fontDialog.font.family
-            consoleOutput.font.pointSize = fontDialog.font.pointSize
-        }
-    }
-
     FontDialog {
         id: fontDialog
-        title: "Please choose a font..."
         font: consoleOutput.font
+        modality: Qt.ApplicationModal
+        title: qsTr("Font")
+
         onAccepted: {
-            console.log("New font: " + fontDialog.font)
-//            consoleOutput.font = fontDialog.font
+            consoleOutput.font.family = font.family
+            consoleOutput.font.pointSize = font.pointSize
         }
     }
 }
