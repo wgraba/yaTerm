@@ -85,7 +85,10 @@ ApplicationWindow {
 
             MenuItem {
                 text: qsTr("&Font...")
-                onTriggered: fontDialog.open()
+                onTriggered: {
+                    fontDialog.font = consoleOutput.font
+                    fontDialog.open()
+                }
             }
 
 //            MenuItem {
@@ -525,7 +528,6 @@ ApplicationWindow {
 
     FontDialog {
         id: fontDialog
-        font: consoleOutput.font
         modality: Qt.ApplicationModal
         title: qsTr("Font")
 
