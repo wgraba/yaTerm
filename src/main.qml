@@ -26,12 +26,14 @@ import QtQuick 2.4
 import QtQuick.Controls 1.3
 import QtQuick.Layouts 1.1
 import QtQuick.Dialogs 1.2
+import QtQuick.Controls.Styles 1.3
 
 ApplicationWindow {
     id: root
     visible: true
     width: 640
     height: 480
+
     title: Qt.application.name
 
     signal consoleInputEntered(string msg)
@@ -520,7 +522,9 @@ ApplicationWindow {
             Label { text: "<strong>End-of-Message Terminator</strong>" }
             ComboBox {
                 id: eomCombo
-                model: ["CR", "LF", "LF+CR"]
+                model: ["CR", "LF"]
+//                model: ["CR", "LF", "LF+CR"] // Remove EOMs greater than two chars until it can be handled properly
+                                               // in read processing
                 currentIndex: 0
             }
         }
@@ -532,6 +536,7 @@ ApplicationWindow {
         title: qsTr("Font")
 
         onAccepted: {
+            // The font weight should do nothing
             consoleOutput.font.family = font.family
             consoleOutput.font.pointSize = font.pointSize
         }

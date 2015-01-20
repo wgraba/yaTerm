@@ -39,6 +39,7 @@ const QMap<QString, SimpleTerminal::CmdFunc> SimpleTerminal::cmdMap = {
 };
 
 //**********************************************************************************************************************
+// @todo: Combine this and cmdHelpMap and cmdMap?
 const QMap<QString, QStringList> SimpleTerminal::cmdHelpMap = {
     { "/clear", { "", "Clear the screen" } },
     { "/connect", { "portName", "Connect to port" } },
@@ -106,6 +107,7 @@ void SimpleTerminal::modifyDspText(DspType type, const QString &text)
     {
         case DspType::READ_MESSAGE:
         {
+            // @todo: What is _eom is > 2 chars and it is split across reads?
             sanitizedText.replace(_eom, _eom + "<br>");
 
             if (isReading)
@@ -302,7 +304,7 @@ void SimpleTerminal::connect()
         qWarning() << "Could not connect\nError code: " << _port->error() << "\nError description: "
                    << _port->errorString();
 
-        setError("Connect failed");
+        setError("Connect attempt failed!<br>" + _port->errorString());
     }
 }
 
@@ -329,7 +331,7 @@ void SimpleTerminal::write(const QString &msg)
     else
     {
         qWarning() << "Port is not open";
-        setError("Port is not open");
+        setError("Port is not open<br>" + _port->errorString());
     }
 }
 
