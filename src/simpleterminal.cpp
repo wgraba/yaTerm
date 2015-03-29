@@ -96,9 +96,13 @@ SimpleTerminal::~SimpleTerminal()
 //**********************************************************************************************************************
 void SimpleTerminal::modifyDspText(DspType type, const QString &text)
 {
-    static bool isReading = false;
-    if (isReading && type != DspType::READ_MESSAGE)
-        isReading = false;
+//    static bool isReading = false;
+//    if (isReading && type != DspType::READ_MESSAGE)
+//        isReading = false;
+
+    static bool newLine = true;
+    if (type != DspType::READ_MESSAGE)
+        newLine = true;
 
     QString sanitizedText = text.toHtmlEscaped();
 
@@ -107,16 +111,28 @@ void SimpleTerminal::modifyDspText(DspType type, const QString &text)
     {
         case DspType::READ_MESSAGE:
         {
-            // @todo: What is _eom is > 2 chars and it is split across reads?
-            sanitizedText.replace(_eom, _eom + "<br>");
+            // @todo: What if _eom is > 2 chars and it is split across reads?
+//            sanitizedText.replace(_eom, _eom + "<br>");
 
-            if (isReading)
-                emit insertDisplayText(sanitizedText);
-            else
+//            if (isReading)
+//                emit insertDisplayText(sanitizedText);
+//            else
+//            {
+//                emit appendDisplayText("<br>" + sanitizedText);
+//                emit appendDisplayText(sanitizedText);
+//                isReading = true;
+//            }
+
+            if (newLine)
             {
-                emit appendDisplayText("<br>" + sanitizedText);
-                isReading = true;
+                emit appendDisplayText(sanitizedText);
+                newLine = false;
             }
+            else
+                emit insertDisplayText(sanitizedText);
+
+            if (sanitizedText.contains(_eom))
+                newLine = true;
 
             break;
         }
@@ -124,6 +140,7 @@ void SimpleTerminal::modifyDspText(DspType type, const QString &text)
         case DspType::WRITE_MESSAGE:
         {
             QString msg = "<br><span><b>" + sanitizedText + "</b></span>";
+//            QString msg = "<span><b>" + sanitizedText + "</b></span>";
 
             emit appendDisplayText(msg);
 
@@ -133,6 +150,7 @@ void SimpleTerminal::modifyDspText(DspType type, const QString &text)
         case DspType::COMMAND:
         {
             QString msg = "<br><span style = \"color: blue;\"><b>$ " + sanitizedText + "</b></span>";
+//            QString msg = "<span style = \"color: blue;\"><b>$ " + sanitizedText + "</b></span>";
 
             emit appendDisplayText(msg);
 
@@ -141,7 +159,8 @@ void SimpleTerminal::modifyDspText(DspType type, const QString &text)
 
         case DspType::COMMAND_RSP:
         {
-            QString msg = "<br><span style = \"color: blue;\">" + text + "</span>";
+//            QString msg = "<br><span style = \"color: blue;\">" + text + "</span>";
+            QString msg = "<span style = \"color: blue;\">" + text + "</span>";
 
             emit appendDisplayText(msg);
 
