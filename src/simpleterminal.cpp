@@ -39,7 +39,7 @@ const QMap<QString, SimpleTerminal::CmdFunc> SimpleTerminal::cmdMap = {
 };
 
 //**********************************************************************************************************************
-// @todo: Combine this and cmdHelpMap and cmdMap?
+// @todo: Combine cmdHelpMap and cmdMap?
 const QMap<QString, QStringList> SimpleTerminal::cmdHelpMap = {
     { "/clear", { "", "Clear the screen" } },
     { "/connect", { "portName", "Connect to port" } },
@@ -323,7 +323,7 @@ void SimpleTerminal::connect()
         qWarning() << "Could not connect\nError code: " << _port->error() << "\nError description: "
                    << _port->errorString();
 
-        setError("Connect attempt failed!<br>" + _port->errorString());
+        setError("Connect attempt failed");
     }
 }
 
@@ -349,8 +349,10 @@ void SimpleTerminal::write(const QString &msg)
         _port->write((txMsg).toLocal8Bit());
     else
     {
-        qWarning() << "Port is not open";
-        setError("Port is not open<br>" + _port->errorString());
+        qWarning() << "Port is not open\nError code: " << _port->error() << "\nError description: "
+                   << _port->errorString();
+
+        setError("Port is not open");
     }
 }
 
@@ -372,8 +374,13 @@ void SimpleTerminal::cmdConnect(SimpleTerminal &st, const QStringList &args)
 {
     if (args.size() > 0)
     {
-        st.setPort(args[0]);
-        st.connect();
+        if (!st._port->isOpen())
+        {
+            st.setPort(args[0]);
+            st.connect();
+        }
+        else
+            st.setError("Already connected");
     }
     else
     {
@@ -388,8 +395,9 @@ void SimpleTerminal::cmdDisconnect(SimpleTerminal &st, const QStringList &)
 }
 
 //**********************************************************************************************************************
-void SimpleTerminal::cmdQuit(SimpleTerminal &, const QStringList &)
+void SimpleTerminal::cmdQuit(SimpleTerminal &st, const QStringList &)
 {
+    st.disconnect();
     QApplication::quit();
 }
 

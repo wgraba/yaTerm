@@ -107,7 +107,7 @@ private:
     static void cmdClear(SimpleTerminal &st, const QStringList &);
     static void cmdConnect(SimpleTerminal &st, const QStringList &args);
     static void cmdDisconnect(SimpleTerminal &st, const QStringList &);
-    static void cmdQuit(SimpleTerminal &, const QStringList &);
+    static void cmdQuit(SimpleTerminal &st, const QStringList &);
     static void cmdHelp(SimpleTerminal &st, const QStringList &args);
 
     QString _statusText;
