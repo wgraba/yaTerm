@@ -111,7 +111,7 @@ void SimpleTerminal::modifyDspText(DspType type, const QString &text)
     {
         case DspType::READ_MESSAGE:
         {
-            // @todo: What if _eom is > 2 chars and it is split across reads?
+            // @todo: What if _eom is > 2 chars and it is split across reads? --WJG
 //            sanitizedText.replace(_eom, _eom + "<br>");
 
 //            if (isReading)

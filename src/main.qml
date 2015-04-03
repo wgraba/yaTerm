@@ -489,12 +489,14 @@ ApplicationWindow {
             ComboBox {
                 id: baudRateCombo
                 model: baudListModel
+                currentIndex: { baudListModel.count() - 1}
             }
 
             Label { text: "<strong>Data Bits</strong>" }
             ComboBox {
                 id: dataBitsCombo
                 model: [5, 6, 7, 8]
+                currentIndex: 3
             }
 
             Label { text: "<strong>Parity</strong>" }
@@ -523,7 +525,7 @@ ApplicationWindow {
                 id: eomCombo
                 model: ["CR", "LF"]
 //                model: ["CR", "LF", "LF+CR"] // Remove EOMs greater than two chars until it can be handled properly
-                                               // in read processing
+                                               // in read processing --WJG
                 currentIndex: 0
             }
         }
