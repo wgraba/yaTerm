@@ -3,7 +3,7 @@ yaTerm
 
 **y**et **a**nother Serial **Term**inal
 
-![yaTerm in action](https://lh6.googleusercontent.com/-hwGq6ZZQM0I/VLsSktce-YI/AAAAAAAAD60/i7JYhPjIY54/w656-h534-no/yaTerm_screenshot4.png)
+![yaTerm in action](https://lh5.googleusercontent.com/-_ZYFjgOEWi0/VR4ObLrhZzI/AAAAAAAAEJo/NExNsHIh07Q/w656-h534-no/yaTerm_screenshot5.png)
 
 Description
 ===========
