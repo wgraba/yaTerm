@@ -378,6 +378,10 @@ ApplicationWindow {
                         console.log("EOM: LF+CR")
                         eomCombo.currentIndex = 2
                         break;
+
+                    case "":
+                        console.log("EOM: None")
+                        eomCombo.currentIndex = 3
                 }
 
             }
@@ -433,7 +437,7 @@ ApplicationWindow {
                     break;
 
                 default:
-                    serialPort.stopBits = "UnknownStopBits";
+                    serialPort.stopBits = "UnknownStopBits"
                     break;
             }
 
@@ -441,19 +445,19 @@ ApplicationWindow {
             switch (flowCombo.currentIndex)
             {
                 case 0:
-                    serialPort.flowControl = "NoFlowControl";
+                    serialPort.flowControl = "NoFlowControl"
                     break;
 
                 case 1:
-                    serialPort.flowControl = "HardwareControl";
+                    serialPort.flowControl = "HardwareControl"
                     break;
 
                 case 2:
-                    serialPort.flowControl = "SoftwareControl";
+                    serialPort.flowControl = "SoftwareControl"
                     break;
 
                 default:
-                    serialPort.flowControl = "UnknownFlowControl";
+                    serialPort.flowControl = "UnknownFlowControl"
                     break;
             }
 
@@ -471,6 +475,10 @@ ApplicationWindow {
 
                 case 2:
                     simpleTerminal.eom = "\n\r";
+                    break;
+
+                case 3:
+                    simpleTerminal.eom = "";
                     break;
             }
         }
@@ -523,9 +531,8 @@ ApplicationWindow {
             Label { text: "<strong>End-of-Message Terminator</strong>" }
             ComboBox {
                 id: eomCombo
-                model: ["CR", "LF"]
-//                model: ["CR", "LF", "LF+CR"] // Remove EOMs greater than two chars until it can be handled properly
-                                               // in read processing --WJG
+//                model: ["CR", "LF"]
+                model: ["CR", "LF", "LF+CR", "None"]
                 currentIndex: 0
             }
         }

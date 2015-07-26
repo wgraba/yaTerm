@@ -111,18 +111,6 @@ void SimpleTerminal::modifyDspText(DspType type, const QString &text)
     {
         case DspType::READ_MESSAGE:
         {
-            // @todo: What if _eom is > 2 chars and it is split across reads? --WJG
-//            sanitizedText.replace(_eom, _eom + "<br>");
-
-//            if (isReading)
-//                emit insertDisplayText(sanitizedText);
-//            else
-//            {
-//                emit appendDisplayText("<br>" + sanitizedText);
-//                emit appendDisplayText(sanitizedText);
-//                isReading = true;
-//            }
-
             if (newLine)
             {
                 emit appendDisplayText(sanitizedText);
@@ -131,7 +119,8 @@ void SimpleTerminal::modifyDspText(DspType type, const QString &text)
             else
                 emit insertDisplayText(sanitizedText);
 
-            if (sanitizedText.contains(_eom))
+            // @todo: What is this occurs in the middle of the text
+            if (sanitizedText.contains('\r') || sanitizedText.contains('\n'))
                 newLine = true;
 
             break;
