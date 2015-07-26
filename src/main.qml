@@ -22,9 +22,9 @@
  * SOFTWARE.
 ******************************************************************************/
 
-import QtQuick 2.4
-import QtQuick.Controls 1.3
-import QtQuick.Layouts 1.1
+import QtQuick 2.5
+import QtQuick.Controls 1.4
+import QtQuick.Layouts 1.2
 import QtQuick.Dialogs 1.2
 
 ApplicationWindow {
@@ -375,7 +375,7 @@ ApplicationWindow {
                         break;
 
                     case "\n\r":
-                        console.log("EOM: LF+CR")
+                        console.log("EOM: CR+LF")
                         eomCombo.currentIndex = 2
                         break;
 
@@ -474,7 +474,7 @@ ApplicationWindow {
                     break;
 
                 case 2:
-                    simpleTerminal.eom = "\n\r";
+                    simpleTerminal.eom = "\r\n";
                     break;
 
                 case 3:
@@ -532,7 +532,7 @@ ApplicationWindow {
             ComboBox {
                 id: eomCombo
 //                model: ["CR", "LF"]
-                model: ["CR", "LF", "LF+CR", "None"]
+                model: ["CR", "LF", "CR+LF", "None"]
                 currentIndex: 0
             }
         }

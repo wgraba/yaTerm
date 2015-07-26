@@ -111,17 +111,53 @@ void SimpleTerminal::modifyDspText(DspType type, const QString &text)
     {
         case DspType::READ_MESSAGE:
         {
-            if (newLine)
+            static QString end_msg("");
+
+            if (_eom.length() > 1 && !newLine && end_msg.length() > 0)
             {
-                emit appendDisplayText(sanitizedText);
-                newLine = false;
+                // EOM split across reads?
+
+                QString endStr(end_msg + sanitizedText.left(_eom.length() - 1));
+                sanitizedText.remove(0, _eom.length() - 1);
+
+                int eomIndex = endStr.indexOf(_eom);
+                if (eomIndex > -1)
+                {
+                    emit insertDisplayText(endStr.mid(end_msg.length(),
+                                                      _eom.length() - (end_msg.length() - eomIndex)));
+                    newLine = true;
+                }
+                else
+                {
+                    emit insertDisplayText(endStr.mid(end_msg.length()));
+                }
+            }
+
+            // Find EOMs
+            QStringList textList = sanitizedText.split(_eom);
+
+            if (newLine)
+                emit appendDisplayText(textList.at(0));
+            else
+                emit insertDisplayText(textList.at(0));
+
+            for (int i = 1; i < textList.length(); ++i)
+            {
+                emit insertDisplayText(_eom);
+                if (textList.at(i).length() > 0)
+                    emit appendDisplayText(textList.at(i));
+            }
+
+            if (textList.at(textList.length() - 1) == "")
+            {
+                newLine = true;
+                end_msg = "";
             }
             else
-                emit insertDisplayText(sanitizedText);
-
-            // @todo: What is this occurs in the middle of the text
-            if (sanitizedText.contains('\r') || sanitizedText.contains('\n'))
-                newLine = true;
+            {
+                newLine = false;
+                end_msg = sanitizedText.right(_eom.length() - 1);
+            }
 
             break;
         }
