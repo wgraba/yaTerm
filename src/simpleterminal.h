@@ -31,6 +31,7 @@
 #include <QSerialPort>
 #include <QList>
 #include <QMap>
+#include <QTimer>
 
 class StringListModel;
 
@@ -67,7 +68,6 @@ public:
     Q_INVOKABLE QString getNextHistory();
 
     void modifyDspText(DspType type, const QString &text);
-    void generatePortList();
     void setEOM(QString newEOM);
     Q_INVOKABLE void resetHistoryIdx();
 
@@ -90,12 +90,14 @@ public slots:
     void connect();
     void disconnect();
     void setPort(QString port);
+    void generatePortList();
 
     void refreshStatusText();
 
 
 private:
     static const int MAX_INPUT_HISTORY_LEN = 64;
+    static const int GET_PORTS_LIST_PERIOD_MS = 3000;
 
     void setStatusText(const QString &text);
     void setErrorText(const QString &text);
@@ -123,6 +125,8 @@ private:
     typedef void (*CmdFunc)(SimpleTerminal &, const QStringList &);
     static const QMap<QString, CmdFunc> cmdMap;
     static const QMap<QString, QStringList> cmdHelpMap;
+
+    QTimer _getPortsTimer;
 
 };
 

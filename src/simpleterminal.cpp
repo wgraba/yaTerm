@@ -56,7 +56,8 @@ SimpleTerminal::SimpleTerminal(QSerialPort *port, StringListModel *portsList, QO
     _port(port),
     _eom("\r"),
     _inputHistory(),
-    _inputHistoryIdx(-1)
+    _inputHistoryIdx(-1),
+    _getPortsTimer(this)
 {
     Q_CHECK_PTR(_port);
     Q_CHECK_PTR(_availablePorts);
@@ -84,7 +85,10 @@ SimpleTerminal::SimpleTerminal(QSerialPort *port, StringListModel *portsList, QO
     QObject::connect(_port, SIGNAL(flowControlChanged(QSerialPort::FlowControl)), this, SLOT(refreshStatusText()));
     QObject::connect(_port, SIGNAL(parityChanged(QSerialPort::Parity)), this, SLOT(refreshStatusText()));
     QObject::connect(_port, SIGNAL(stopBitsChanged(QSerialPort::StopBits)), this, SLOT(refreshStatusText()));
+    QObject::connect(&_getPortsTimer, SIGNAL(timeout()), this, SLOT(generatePortList()));
 
+    _getPortsTimer.setSingleShot(false);
+    _getPortsTimer.start(GET_PORTS_LIST_PERIOD_MS);
 
 }
 
