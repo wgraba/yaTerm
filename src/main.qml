@@ -22,9 +22,9 @@
  * SOFTWARE.
 ******************************************************************************/
 
-import QtQuick 2.4
-import QtQuick.Controls 1.3
-import QtQuick.Layouts 1.1
+import QtQuick 2.5
+import QtQuick.Controls 1.4
+import QtQuick.Layouts 1.2
 import QtQuick.Dialogs 1.2
 
 ApplicationWindow {
@@ -375,9 +375,13 @@ ApplicationWindow {
                         break;
 
                     case "\n\r":
-                        console.log("EOM: LF+CR")
+                        console.log("EOM: CR+LF")
                         eomCombo.currentIndex = 2
                         break;
+
+                    case "":
+                        console.log("EOM: None")
+                        eomCombo.currentIndex = 3
                 }
 
             }
@@ -433,7 +437,7 @@ ApplicationWindow {
                     break;
 
                 default:
-                    serialPort.stopBits = "UnknownStopBits";
+                    serialPort.stopBits = "UnknownStopBits"
                     break;
             }
 
@@ -441,19 +445,19 @@ ApplicationWindow {
             switch (flowCombo.currentIndex)
             {
                 case 0:
-                    serialPort.flowControl = "NoFlowControl";
+                    serialPort.flowControl = "NoFlowControl"
                     break;
 
                 case 1:
-                    serialPort.flowControl = "HardwareControl";
+                    serialPort.flowControl = "HardwareControl"
                     break;
 
                 case 2:
-                    serialPort.flowControl = "SoftwareControl";
+                    serialPort.flowControl = "SoftwareControl"
                     break;
 
                 default:
-                    serialPort.flowControl = "UnknownFlowControl";
+                    serialPort.flowControl = "UnknownFlowControl"
                     break;
             }
 
@@ -470,7 +474,11 @@ ApplicationWindow {
                     break;
 
                 case 2:
-                    simpleTerminal.eom = "\n\r";
+                    simpleTerminal.eom = "\r\n";
+                    break;
+
+                case 3:
+                    simpleTerminal.eom = "";
                     break;
             }
         }
@@ -523,9 +531,8 @@ ApplicationWindow {
             Label { text: "<strong>End-of-Message Terminator</strong>" }
             ComboBox {
                 id: eomCombo
-                model: ["CR", "LF"]
-//                model: ["CR", "LF", "LF+CR"] // Remove EOMs greater than two chars until it can be handled properly
-                                               // in read processing --WJG
+//                model: ["CR", "LF"]
+                model: ["CR", "LF", "CR+LF", "None"]
                 currentIndex: 0
             }
         }
