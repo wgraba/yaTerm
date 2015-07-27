@@ -441,7 +441,7 @@ void SimpleTerminal::cmdHelp(SimpleTerminal &st, const QStringList &args)
             rspStr.append(help[1]);
         }
         else
-            st.setError("Unkown command");
+            st.setError("Unknown command");
     }
     else
     {
