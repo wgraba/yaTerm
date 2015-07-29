@@ -244,6 +244,8 @@ ApplicationWindow {
 
         onVisibleChanged: {
             if (visible) {
+                // Ports
+                portCombo.currentIndex = -1
 
                 // Baud Rate
                 console.log("Current baud rate: ", serialPort.baudRate)

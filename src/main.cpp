@@ -23,8 +23,8 @@
 ******************************************************************************/
 
 #include "simpleterminal.h"
-#include "stringlistmodel.h"
 #include "listmodel.h"
+#include "portswatcher.h"
 
 #include <QApplication>
 #include <QQmlApplicationEngine>
@@ -41,14 +41,17 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
 
     app.setApplicationName("yaTerm");
-    app.setApplicationVersion("0.1.1");
+    app.setApplicationVersion("0.1.2");
     app.setWindowIcon(QIcon(":/images/icon.svg"));
+
 
     QQmlApplicationEngine engine;
 
-//    QList<QObject *> list = engine.children();
-//    QObject *item = engine.findChild<QObject *>("root");
-    StringListModel portsListModel;
+//    StringListModel portsListModel;
+    QStringList portsListModel;
+    PortsWatcher portsWatcher(engine, portsListModel, &app);
+    portsWatcher.generatePortsList();
+
     ListModel<qint32> baudListModel;
     QList<qint32> standardBaudRates = { QSerialPort::Baud1200,
                                         QSerialPort::Baud2400,
@@ -61,14 +64,13 @@ int main(int argc, char *argv[])
     baudListModel.setList(standardBaudRates);
 
     QSerialPort serialPort;
-    SimpleTerminal *simpleTerminal = new SimpleTerminal(&serialPort, &portsListModel, &app);
+    SimpleTerminal *simpleTerminal = new SimpleTerminal(&serialPort, &app);
 
     engine.rootContext()->setContextProperty("serialPort", &serialPort);
     engine.rootContext()->setContextProperty("simpleTerminal", simpleTerminal);
-    engine.rootContext()->setContextProperty("portsListModel", &portsListModel);
     engine.rootContext()->setContextProperty("baudListModel", &baudListModel);
 
-    engine.load(QUrl(QStringLiteral("qrc:/src/main.qml")));
+    engine.load(QUrl("qrc:/src/main.qml"));
 
     QObject *item = engine.rootObjects().value(0);
     Q_CHECK_PTR(item);
@@ -78,6 +80,11 @@ int main(int argc, char *argv[])
     QObject::connect(item, SIGNAL(disconnect()), simpleTerminal, SLOT(disconnect()));
     QObject::connect(item, SIGNAL(newPort(QString)), simpleTerminal, SLOT(setPort(QString)));
 
+    portsWatcher.start();
+
     return app.exec();
 }
+
+//**********************************************************************************************************************
+
 

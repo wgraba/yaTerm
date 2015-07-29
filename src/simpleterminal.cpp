@@ -23,11 +23,9 @@
 ******************************************************************************/
 
 #include "simpleterminal.h"
-#include "stringlistmodel.h"
 
 #include <QApplication>
 #include <QSerialPort>
-#include <QSerialPortInfo>
 
 //**********************************************************************************************************************
 const QMap<QString, SimpleTerminal::CmdFunc> SimpleTerminal::cmdMap = {
@@ -49,33 +47,16 @@ const QMap<QString, QStringList> SimpleTerminal::cmdHelpMap = {
 };
 
 //**********************************************************************************************************************
-SimpleTerminal::SimpleTerminal(QSerialPort *port, StringListModel *portsList, QObject *parent) :
+SimpleTerminal::SimpleTerminal(QSerialPort *port, QObject *parent) :
     QObject(parent),
-    _availablePorts(portsList),
+//    _availablePorts(portsList),
     _statusText(QString()),
     _port(port),
     _eom("\r"),
     _inputHistory(),
-    _inputHistoryIdx(-1),
-    _getPortsTimer(this)
+    _inputHistoryIdx(-1)
 {
     Q_CHECK_PTR(_port);
-    Q_CHECK_PTR(_availablePorts);
-
-    generatePortList();
-    if (_availablePorts->getStringList().count() <= 0)
-    {
-        _port->setBaudRate(QSerialPort::Baud115200);
-        _port->setDataBits(QSerialPort::Data8);
-        _port->setParity(QSerialPort::NoParity);
-        _port->setStopBits(QSerialPort::OneStop);
-        _port->setFlowControl(QSerialPort::NoFlowControl);
-    }
-    else
-    {
-        _port->setPortName(_availablePorts->getStringList()[0]);
-        _port->setBaudRate(QSerialPort::Baud9600);
-    }
 
     refreshStatusText();
 
@@ -85,10 +66,6 @@ SimpleTerminal::SimpleTerminal(QSerialPort *port, StringListModel *portsList, QO
     QObject::connect(_port, SIGNAL(flowControlChanged(QSerialPort::FlowControl)), this, SLOT(refreshStatusText()));
     QObject::connect(_port, SIGNAL(parityChanged(QSerialPort::Parity)), this, SLOT(refreshStatusText()));
     QObject::connect(_port, SIGNAL(stopBitsChanged(QSerialPort::StopBits)), this, SLOT(refreshStatusText()));
-    QObject::connect(&_getPortsTimer, SIGNAL(timeout()), this, SLOT(generatePortList()));
-
-    _getPortsTimer.setSingleShot(false);
-    _getPortsTimer.start(GET_PORTS_LIST_PERIOD_MS);
 
 }
 
@@ -212,17 +189,6 @@ void SimpleTerminal::modifyDspText(DspType type, const QString &text)
 
             break;
     }
-}
-
-//**********************************************************************************************************************
-void SimpleTerminal::generatePortList()
-{
-    QStringList ports;
-    foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts())
-    {
-        ports << info.portName();
-    }
-    _availablePorts->setStringList(ports);
 }
 
 //**********************************************************************************************************************
