@@ -545,6 +545,11 @@ ApplicationWindow {
         modality: Qt.ApplicationModal
         title: qsTr("Font")
 
+        monospacedFonts: true
+        nonScalableFonts: false
+        proportionalFonts: false
+        scalableFonts: false
+
         onAccepted: {
             // The font weight should do nothing
             consoleOutput.font.family = font.family
