@@ -218,8 +218,8 @@ ApplicationWindow {
         textFormat: TextEdit.RichText
         wrapMode: TextEdit.WrapAtWordBoundaryOrAnywhere
 
-        font.family: "Monospace"
-        font.pointSize: 11
+        font.family: "Courier New"
+        font.pointSize: 10
         font.weight: Font.Normal
 
     }
