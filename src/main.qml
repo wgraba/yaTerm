@@ -30,7 +30,7 @@ import QtQuick.Dialogs 1.2
 ApplicationWindow {
     id: root
     visible: true
-    width: 640
+    width: 700
     height: 480
 
     title: Qt.application.name

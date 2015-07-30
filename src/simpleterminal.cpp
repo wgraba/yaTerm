@@ -117,6 +117,12 @@ void SimpleTerminal::modifyDspText(DspType type, const QString &text)
             // Find EOMs
             QStringList textList = sanitizedText.split(_eom);
 
+            // First break at Line Feeds
+            for (int i = 0; i < textList.length(); ++i)
+            {
+                textList[i].replace("\n", "\n<br>");
+            }
+
             if (newLine)
                 emit appendDisplayText(textList.at(0));
             else
@@ -125,11 +131,11 @@ void SimpleTerminal::modifyDspText(DspType type, const QString &text)
             for (int i = 1; i < textList.length(); ++i)
             {
                 emit insertDisplayText(_eom);
-                if (textList.at(i).length() > 0)
-                    emit appendDisplayText(textList.at(i));
+                if (textList[i].length() > 0)
+                    emit appendDisplayText(textList[i]);
             }
 
-            if (textList.at(textList.length() - 1) == "")
+            if (textList[textList.length() - 1] == "")
             {
                 newLine = true;
                 end_msg = "";
