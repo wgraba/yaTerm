@@ -23,7 +23,6 @@
 ******************************************************************************/
 
 #include "simpleterminal.h"
-#include "listmodel.h"
 #include "portswatcher.h"
 
 #include <QApplication>
@@ -47,28 +46,25 @@ int main(int argc, char *argv[])
 
     QQmlApplicationEngine engine;
 
-//    StringListModel portsListModel;
     QStringList portsListModel;
     PortsWatcher portsWatcher(engine, portsListModel, &app);
     portsWatcher.generatePortsList();
 
-    ListModel<qint32> baudListModel;
-    QList<qint32> standardBaudRates = { QSerialPort::Baud1200,
-                                        QSerialPort::Baud2400,
-                                        QSerialPort::Baud4800,
-                                        QSerialPort::Baud9600,
-                                        QSerialPort::Baud19200,
-                                        QSerialPort::Baud38400,
-                                        QSerialPort::Baud57600,
-                                        QSerialPort::Baud115200};
-    baudListModel.setList(standardBaudRates);
+    QList<QVariant> standardBaudRates = { QSerialPort::Baud1200,
+                                          QSerialPort::Baud2400,
+                                          QSerialPort::Baud4800,
+                                          QSerialPort::Baud9600,
+                                          QSerialPort::Baud19200,
+                                          QSerialPort::Baud38400,
+                                          QSerialPort::Baud57600,
+                                          QSerialPort::Baud115200 };
 
     QSerialPort serialPort;
     SimpleTerminal *simpleTerminal = new SimpleTerminal(&serialPort, &app);
 
     engine.rootContext()->setContextProperty("serialPort", &serialPort);
     engine.rootContext()->setContextProperty("simpleTerminal", simpleTerminal);
-    engine.rootContext()->setContextProperty("baudListModel", &baudListModel);
+    engine.rootContext()->setContextProperty("baudListModel", QVariant::fromValue(standardBaudRates));
 
     engine.load(QUrl("qrc:/src/main.qml"));
 

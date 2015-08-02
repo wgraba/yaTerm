@@ -7,7 +7,6 @@ CONFIG += c++11
 SOURCES += \
     src/main.cpp \
     src/simpleterminal.cpp \
-    src/stringlistmodel.cpp \
     src/portswatcher.cpp
 
 RESOURCES += qml.qrc
@@ -19,7 +18,5 @@ QML_IMPORT_PATH =
 include(deployment.pri)
 
 HEADERS += \
-    src/listmodel.h \
     src/simpleterminal.h \
-    src/stringlistmodel.h \
     src/portswatcher.h
