@@ -3,7 +3,7 @@ yaTerm
 
 **y**et **a**nother Serial **Term**inal
 
-![yaTerm in action](https://lh5.googleusercontent.com/-_ZYFjgOEWi0/VR4ObLrhZzI/AAAAAAAAEJo/NExNsHIh07Q/w656-h534-no/yaTerm_screenshot5.png)
+![yaTerm in action](https://lh3.googleusercontent.com/vea0VUPOtPPdU1lNEF3SkDm4iWO7GIo5pOxhQ1huYlE=w714-h531-no)
 
 Description
 ===========
@@ -48,7 +48,7 @@ The rest of the building process is dependent on the architecture.
 Linux
 -----
 
-This follows a pretty standard Qt build; more information can be found in the [Qt Docs](http://qt-project.org/doc/).
+This follows a pretty standard Qt build; more information can be found in the [Qt Docs](http://doc.qt.io/).
 
 * Run qmake (debug; lose the `CONFIG+=` stuff for release). This is shown running in the root project path, but this can be run from any desired path as long the path to `yaTerm.pro` is given (useful for separating build and source files)
 
@@ -65,7 +65,9 @@ make
 Windows
 -------
 
-TBD. I have done some preliminary testing and it looks good so far. Refer to the [Qt Docs](http://qt-project.org/doc/) for more information; it should build like a regular Qt project on Windows; just have to change the `-spec` option.
+TBD. 
+
+I have done some preliminary testing and it looks good so far. Refer to the [Qt Docs](http://qt-project.org/doc/) for more information; it should build like a regular Qt project on Windows; just have to change the `-spec` option.
 
 OSX
 ---
