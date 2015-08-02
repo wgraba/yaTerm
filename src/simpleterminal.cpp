@@ -23,11 +23,9 @@
 ******************************************************************************/
 
 #include "simpleterminal.h"
-#include "stringlistmodel.h"
 
 #include <QApplication>
 #include <QSerialPort>
-#include <QSerialPortInfo>
 
 //**********************************************************************************************************************
 const QMap<QString, SimpleTerminal::CmdFunc> SimpleTerminal::cmdMap = {
@@ -49,9 +47,9 @@ const QMap<QString, QStringList> SimpleTerminal::cmdHelpMap = {
 };
 
 //**********************************************************************************************************************
-SimpleTerminal::SimpleTerminal(QSerialPort *port, StringListModel *portsList, QObject *parent) :
+SimpleTerminal::SimpleTerminal(QSerialPort *port, QObject *parent) :
     QObject(parent),
-    _availablePorts(portsList),
+//    _availablePorts(portsList),
     _statusText(QString()),
     _port(port),
     _eom("\r"),
@@ -59,22 +57,6 @@ SimpleTerminal::SimpleTerminal(QSerialPort *port, StringListModel *portsList, QO
     _inputHistoryIdx(-1)
 {
     Q_CHECK_PTR(_port);
-    Q_CHECK_PTR(_availablePorts);
-
-    generatePortList();
-    if (_availablePorts->getStringList().count() <= 0)
-    {
-        _port->setBaudRate(QSerialPort::Baud115200);
-        _port->setDataBits(QSerialPort::Data8);
-        _port->setParity(QSerialPort::NoParity);
-        _port->setStopBits(QSerialPort::OneStop);
-        _port->setFlowControl(QSerialPort::NoFlowControl);
-    }
-    else
-    {
-        _port->setPortName(_availablePorts->getStringList()[0]);
-        _port->setBaudRate(QSerialPort::Baud9600);
-    }
 
     refreshStatusText();
 
@@ -84,7 +66,6 @@ SimpleTerminal::SimpleTerminal(QSerialPort *port, StringListModel *portsList, QO
     QObject::connect(_port, SIGNAL(flowControlChanged(QSerialPort::FlowControl)), this, SLOT(refreshStatusText()));
     QObject::connect(_port, SIGNAL(parityChanged(QSerialPort::Parity)), this, SLOT(refreshStatusText()));
     QObject::connect(_port, SIGNAL(stopBitsChanged(QSerialPort::StopBits)), this, SLOT(refreshStatusText()));
-
 
 }
 
@@ -136,6 +117,12 @@ void SimpleTerminal::modifyDspText(DspType type, const QString &text)
             // Find EOMs
             QStringList textList = sanitizedText.split(_eom);
 
+            // First break at Line Feeds
+            for (int i = 0; i < textList.length(); ++i)
+            {
+                textList[i].replace("\n", "\n<br>");
+            }
+
             if (newLine)
                 emit appendDisplayText(textList.at(0));
             else
@@ -144,11 +131,11 @@ void SimpleTerminal::modifyDspText(DspType type, const QString &text)
             for (int i = 1; i < textList.length(); ++i)
             {
                 emit insertDisplayText(_eom);
-                if (textList.at(i).length() > 0)
-                    emit appendDisplayText(textList.at(i));
+                if (textList[i].length() > 0)
+                    emit appendDisplayText(textList[i]);
             }
 
-            if (textList.at(textList.length() - 1) == "")
+            if (textList[textList.length() - 1] == "")
             {
                 newLine = true;
                 end_msg = "";
@@ -208,17 +195,6 @@ void SimpleTerminal::modifyDspText(DspType type, const QString &text)
 
             break;
     }
-}
-
-//**********************************************************************************************************************
-void SimpleTerminal::generatePortList()
-{
-    QStringList ports;
-    foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts())
-    {
-        ports << info.portName();
-    }
-    _availablePorts->setStringList(ports);
 }
 
 //**********************************************************************************************************************

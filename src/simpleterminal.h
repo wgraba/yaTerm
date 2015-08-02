@@ -29,10 +29,8 @@
 #include <QtDebug>
 #include <QString>
 #include <QSerialPort>
-#include <QList>
 #include <QMap>
 
-class StringListModel;
 
 //**********************************************************************************************************************
 class SimpleTerminal : public QObject
@@ -54,7 +52,7 @@ public:
         ERROR
     };
 
-    explicit SimpleTerminal(QSerialPort *port, StringListModel *portsList, QObject *parent = 0);
+    explicit SimpleTerminal(QSerialPort *port, QObject *parent = 0);
     ~SimpleTerminal();
 
     QString statusText() const;
@@ -67,11 +65,8 @@ public:
     Q_INVOKABLE QString getNextHistory();
 
     void modifyDspText(DspType type, const QString &text);
-    void generatePortList();
     void setEOM(QString newEOM);
     Q_INVOKABLE void resetHistoryIdx();
-
-    StringListModel *_availablePorts;
 
 signals:
     void statusTextChanged();

@@ -22,37 +22,35 @@
  * SOFTWARE.
 ******************************************************************************/
 
-#ifndef PORTSLISTMODEL_H
-#define PORTSLISTMODEL_H
+#ifndef PORTSWATCHER_H
+#define PORTSWATCHER_H
 
-#include <QAbstractListModel>
-#include <QStringList>
+#include <QObject>
+#include <QTimer>
 
-//*****************************************************************************
-class StringListModel : public QAbstractListModel
+class QQmlApplicationEngine;
+class QStringList;
+
+//**********************************************************************************************************************
+class PortsWatcher : public QObject
 {
     Q_OBJECT
 public:
-    explicit StringListModel(QObject *parent = 0);
-    StringListModel(const StringListModel &listModel, QObject *parent = 0);
+    explicit PortsWatcher(QQmlApplicationEngine &engine, QStringList &portsList, QObject *parent = 0);
 
-    ~StringListModel();
-
-    void setStringList(QStringList &list);
-    QStringList getStringList() const;
-    virtual int rowCount(const QModelIndex & parent = QModelIndex()) const;
-    virtual QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const;
+    void start();
 
 signals:
 
 public slots:
-
-protected:
-    virtual QHash<int, QByteArray> roleNames() const;
+    void generatePortsList();
 
 private:
-    QStringList _strings;
+    static const int GET_PORTS_LIST_PERIOD_MS = 4000;
 
+    QQmlApplicationEngine &_engine;
+    QStringList &_portsList;
+    QTimer _timer;
 };
 
-#endif // PORTSLISTMODEL_H
+#endif // PORTSWATCHER_H

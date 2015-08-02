@@ -23,8 +23,7 @@
 ******************************************************************************/
 
 #include "simpleterminal.h"
-#include "stringlistmodel.h"
-#include "listmodel.h"
+#include "portswatcher.h"
 
 #include <QApplication>
 #include <QQmlApplicationEngine>
@@ -41,34 +40,40 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
 
     app.setApplicationName("yaTerm");
-    app.setApplicationVersion("0.1.1");
+    app.setApplicationVersion("0.1.2");
     app.setWindowIcon(QIcon(":/images/icon.svg"));
+
 
     QQmlApplicationEngine engine;
 
-//    QList<QObject *> list = engine.children();
-//    QObject *item = engine.findChild<QObject *>("root");
-    StringListModel portsListModel;
-    ListModel<qint32> baudListModel;
-    QList<qint32> standardBaudRates = { QSerialPort::Baud1200,
-                                        QSerialPort::Baud2400,
-                                        QSerialPort::Baud4800,
-                                        QSerialPort::Baud9600,
-                                        QSerialPort::Baud19200,
-                                        QSerialPort::Baud38400,
-                                        QSerialPort::Baud57600,
-                                        QSerialPort::Baud115200};
-    baudListModel.setList(standardBaudRates);
+    QStringList portsListModel;
+    PortsWatcher portsWatcher(engine, portsListModel, &app);
+    portsWatcher.generatePortsList();
+
+    // @todo: Will standard baud rates change with selected serial port?
+    QList<QVariant> standardBaudRates = { QSerialPort::Baud1200,
+                                          QSerialPort::Baud2400,
+                                          QSerialPort::Baud4800,
+                                          QSerialPort::Baud9600,
+                                          QSerialPort::Baud19200,
+                                          QSerialPort::Baud38400,
+                                          QSerialPort::Baud57600,
+                                          QSerialPort::Baud115200 };
+
+//    QList<QVariant> standardBaudRates;
+//    foreach (const qint32 &rate, QSerialPortInfo::standardBaudRates())
+//    {
+//        standardBaudRates.append(rate);
+//    }
 
     QSerialPort serialPort;
-    SimpleTerminal *simpleTerminal = new SimpleTerminal(&serialPort, &portsListModel, &app);
+    SimpleTerminal *simpleTerminal = new SimpleTerminal(&serialPort, &app);
 
     engine.rootContext()->setContextProperty("serialPort", &serialPort);
     engine.rootContext()->setContextProperty("simpleTerminal", simpleTerminal);
-    engine.rootContext()->setContextProperty("portsListModel", &portsListModel);
-    engine.rootContext()->setContextProperty("baudListModel", &baudListModel);
+    engine.rootContext()->setContextProperty("baudListModel", QVariant::fromValue(standardBaudRates));
 
-    engine.load(QUrl(QStringLiteral("qrc:/src/main.qml")));
+    engine.load(QUrl("qrc:/src/main.qml"));
 
     QObject *item = engine.rootObjects().value(0);
     Q_CHECK_PTR(item);
@@ -78,6 +83,11 @@ int main(int argc, char *argv[])
     QObject::connect(item, SIGNAL(disconnect()), simpleTerminal, SLOT(disconnect()));
     QObject::connect(item, SIGNAL(newPort(QString)), simpleTerminal, SLOT(setPort(QString)));
 
+    portsWatcher.start();
+
     return app.exec();
 }
+
+//**********************************************************************************************************************
+
 

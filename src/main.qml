@@ -30,7 +30,7 @@ import QtQuick.Dialogs 1.2
 ApplicationWindow {
     id: root
     visible: true
-    width: 640
+    width: 700
     height: 480
 
     title: Qt.application.name
@@ -218,8 +218,8 @@ ApplicationWindow {
         textFormat: TextEdit.RichText
         wrapMode: TextEdit.WrapAtWordBoundaryOrAnywhere
 
-        font.family: "Monospace"
-        font.pointSize: 11
+        font.family: "Courier New"
+        font.pointSize: 10
         font.weight: Font.Normal
 
     }
@@ -244,6 +244,8 @@ ApplicationWindow {
 
         onVisibleChanged: {
             if (visible) {
+                // Ports
+                portCombo.currentIndex = -1
 
                 // Baud Rate
                 console.log("Current baud rate: ", serialPort.baudRate)
@@ -542,6 +544,11 @@ ApplicationWindow {
         id: fontDialog
         modality: Qt.ApplicationModal
         title: qsTr("Font")
+
+        monospacedFonts: true
+        nonScalableFonts: false
+        proportionalFonts: false
+        scalableFonts: false
 
         onAccepted: {
             // The font weight should do nothing
