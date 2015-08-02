@@ -29,7 +29,6 @@
 #include <QtDebug>
 #include <QString>
 #include <QSerialPort>
-#include <QList>
 #include <QMap>
 
 
@@ -68,8 +67,6 @@ public:
     void modifyDspText(DspType type, const QString &text);
     void setEOM(QString newEOM);
     Q_INVOKABLE void resetHistoryIdx();
-
-//    StringListModel *_availablePorts;
 
 signals:
     void statusTextChanged();

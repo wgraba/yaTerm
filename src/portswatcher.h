@@ -29,7 +29,7 @@
 #include <QTimer>
 
 class QQmlApplicationEngine;
-class StringList;
+class QStringList;
 
 //**********************************************************************************************************************
 class PortsWatcher : public QObject
