@@ -9,7 +9,7 @@ Description
 ===========
 
 A simple program that can be used for serial communication. The main goals of this 
-project are to replace other serial terminal programs that I'm not quite happy 
+project is to replace other serial terminal programs that I'm not quite happy 
 with and to learn GUI programming with QML and Qt. As a consequence, this
 is a work-in-progress and pretty rough.
 
@@ -19,7 +19,6 @@ Features
 * Separate input and output windows
 * Input history (use 'up' and 'down' keys with input window focused)
 * Simple command-line interface (type "/help" into input window)
-* Minor formatting applied to output to visually distiguish sent text from received text, commands, errors, etc
 * Settable auto-scrolling of output window
 * Visual cues to help distinguish input from output, commands from command response, errors, etc.
 
@@ -32,7 +31,7 @@ Nothing too special about development; follows the standard Qt development proce
 Prerequesites
 -------------
 
-* Qt 5.4+
+* Qt 5.5+ (Standard Qt + Qt Quick Controls)
 * Appropriate compiler such as GCC 4.8+
 
 The easiest way to get all the prerequisites is to download the [Qt SDK](http://qt-project.org/downloads).
