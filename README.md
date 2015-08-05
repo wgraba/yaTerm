@@ -22,11 +22,37 @@ Features
 * Settable auto-scrolling of output window
 * Visual cues to help distinguish input from output, commands from command response, errors, etc.
 
+Installing
+==========
+
+This is dependent on the OS.
+
+Windows
+-------
+
+* [Build](#building) from source or download pre-built binaries at 
+[my Bintray project](https://bintray.com/wgraba/windows/yaTerm/view).
+* Currently, there is no installer; unzip content to desired directory. Install Visual Studio C++
+  redistributable (get from Microsoft web site or from unzipped contents).
+* Run yaTerm.exe and enjoy!
+
+Linux
+-----
+
+Currently, the only way is to [build](#building) from source. I'm hoping to create packages for popular distros
+soon.
+
+Mac OSX
+-------
+
+TBD. The best starting point right now is to [build](#building) from source.
 
 Developing
 ==========
 
-Nothing too special about development; follows the standard Qt development process. I personally like to use [Qt Creator](http://qt-project.org/wiki/Category:Tools::QtCreator) for an IDE (also available as part of the [Qt SDK](http://qt-project.org/downloads)).
+Nothing too special about development; follows the standard Qt development process. I personally 
+like to use [Qt Creator](http://qt-project.org/wiki/Category:Tools::QtCreator) for an IDE (also 
+available as part of the [Qt SDK](http://qt-project.org/downloads)).
 
 Prerequesites
 -------------
