@@ -39,10 +39,11 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
+    app.setOrganizationName("No Org");
+    app.setOrganizationDomain("noorg.org");
     app.setApplicationName("yaTerm");
     app.setApplicationVersion("0.1.2");
     app.setWindowIcon(QIcon(":/images/icon.svg"));
-
 
     QQmlApplicationEngine engine;
 

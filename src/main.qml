@@ -26,6 +26,7 @@ import QtQuick 2.5
 import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.2
 import QtQuick.Dialogs 1.2
+import Qt.labs.settings 1.0
 
 ApplicationWindow {
     id: root
@@ -43,6 +44,14 @@ ApplicationWindow {
     function inputEntered() {
         consoleInputEntered(consoleInput.text)
         consoleInput.text = ""
+    }
+
+    Settings {
+        category: "ApplicationWindow"
+        property alias x: root.x
+        property alias y: root.y
+        property alias width: root.width
+        property alias height: root.height
     }
 
     menuBar: MenuBar {
