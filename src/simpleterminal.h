@@ -31,7 +31,6 @@
 #include <QSerialPort>
 #include <QMap>
 
-
 //**********************************************************************************************************************
 class SimpleTerminal : public QObject
 {
@@ -58,6 +57,7 @@ public:
     QString statusText() const;
     QString errorText() const;
     bool isConnected() const;
+    Q_INVOKABLE QString getPortName() const;
     QString getEOM() const;
     int getInputHistoryLen() const;
     Q_INVOKABLE QString getInputHistoryIdx(int idx) const;
@@ -87,6 +87,7 @@ public slots:
     void setPort(QString port);
 
     void refreshStatusText();
+    void settingsChanged();
 
 
 private:
@@ -97,6 +98,8 @@ private:
     void processCommand(const QString &cmd);
     void write(const QString &msg);
     void setError(const QString &msg);
+    void restoreSettings();
+    void saveSettings() const;
 
     // Commands
     static void cmdClear(SimpleTerminal &st, const QStringList &);

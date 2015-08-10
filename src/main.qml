@@ -40,6 +40,7 @@ ApplicationWindow {
     signal connect();
     signal disconnect();
     signal newPort(string port);
+    signal settingsChanged();
 
     function inputEntered() {
         consoleInputEntered(consoleInput.text)
@@ -254,7 +255,8 @@ ApplicationWindow {
         onVisibleChanged: {
             if (visible) {
                 // Ports
-                portCombo.currentIndex = -1
+                console.log("Current port: ", simpleTerminal.getPortName())
+                portCombo.currentIndex = portCombo.find(simpleTerminal.getPortName())
 
                 // Baud Rate
                 console.log("Current baud rate: ", serialPort.baudRate)
@@ -341,15 +343,15 @@ ApplicationWindow {
                 {
                     default:
                     case 1:
-                        parityCombo.currentIndex = 0
+                        stopCombo.currentIndex = 0
                         break
 
                     case 3:
-                        parityCombo.currentIndex = 1
+                        stopCombo.currentIndex = 1
                         break
 
                     case 2:
-                        parityCombo.currentIndex = 2
+                        stopCombo.currentIndex = 2
                         break
                 }
 
@@ -385,7 +387,7 @@ ApplicationWindow {
                         eomCombo.currentIndex = 1
                         break;
 
-                    case "\n\r":
+                    case "\r\n":
                         console.log("EOM: CR+LF")
                         eomCombo.currentIndex = 2
                         break;
@@ -402,9 +404,6 @@ ApplicationWindow {
             console.log("Applying new settings: " + portCombo.currentText + " " + baudRateCombo.currentText + " " +
                         dataBitsCombo.currentText + " " + parityCombo.currentText + " " + stopCombo.currentText + " " +
                         flowCombo.currentText, " " + eomCombo.currentText)
-
-            // Port
-            newPort(portCombo.currentText)
 
             // Baud rate
             serialPort.baudRate = baudRateCombo.currentText
@@ -492,6 +491,12 @@ ApplicationWindow {
                     simpleTerminal.eom = "";
                     break;
             }
+
+
+            // Port
+            newPort(portCombo.currentText)
+
+            settingsChanged()
         }
 
         GridLayout {

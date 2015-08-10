@@ -26,6 +26,7 @@
 
 #include <QApplication>
 #include <QSerialPort>
+#include <QSettings>
 
 //**********************************************************************************************************************
 const QMap<QString, SimpleTerminal::CmdFunc> SimpleTerminal::cmdMap = {
@@ -49,7 +50,6 @@ const QMap<QString, QStringList> SimpleTerminal::cmdHelpMap = {
 //**********************************************************************************************************************
 SimpleTerminal::SimpleTerminal(QSerialPort *port, QObject *parent) :
     QObject(parent),
-//    _availablePorts(portsList),
     _statusText(QString()),
     _port(port),
     _eom("\r"),
@@ -58,14 +58,18 @@ SimpleTerminal::SimpleTerminal(QSerialPort *port, QObject *parent) :
 {
     Q_CHECK_PTR(_port);
 
+    // Restore settings
+    restoreSettings();
+
     refreshStatusText();
 
     QObject::connect(_port, SIGNAL(readyRead()), this, SLOT(read()));
-    QObject::connect(_port, SIGNAL(baudRateChanged(qint32,QSerialPort::Directions)), this, SLOT(refreshStatusText()));
-    QObject::connect(_port, SIGNAL(dataBitsChanged(QSerialPort::DataBits)), this, SLOT(refreshStatusText()));
-    QObject::connect(_port, SIGNAL(flowControlChanged(QSerialPort::FlowControl)), this, SLOT(refreshStatusText()));
-    QObject::connect(_port, SIGNAL(parityChanged(QSerialPort::Parity)), this, SLOT(refreshStatusText()));
-    QObject::connect(_port, SIGNAL(stopBitsChanged(QSerialPort::StopBits)), this, SLOT(refreshStatusText()));
+//    QObject::connect(_port, SIGNAL(baudRateChanged(qint32,QSerialPort::Directions)), this, SLOT(settingsChanged()));
+//    QObject::connect(_port, SIGNAL(dataBitsChanged(QSerialPort::DataBits)), this, SLOT(settingsChanged()));
+//    QObject::connect(_port, SIGNAL(flowControlChanged(QSerialPort::FlowControl)), this, SLOT(settingsChanged()));
+//    QObject::connect(_port, SIGNAL(parityChanged(QSerialPort::Parity)), this, SLOT(settingsChanged()));
+//    QObject::connect(_port, SIGNAL(stopBitsChanged(QSerialPort::StopBits)), this, SLOT(settingsChanged()));
+//    QObject::connect(this, SIGNAL(eomChanged()), this, SLOT(settingsChanged()));
 
 }
 
@@ -201,6 +205,8 @@ void SimpleTerminal::modifyDspText(DspType type, const QString &text)
 void SimpleTerminal::setEOM(QString newEOM)
 {
     _eom = newEOM;
+
+    emit eomChanged();
 }
 
 //**********************************************************************************************************************
@@ -230,7 +236,17 @@ void SimpleTerminal::parseInput(const QString &msg)
 //**********************************************************************************************************************
 void SimpleTerminal::setPort(QString port)
 {
-    _port->setPortName(port);
+    if (_port->isOpen())
+    {
+        _port->disconnect();
+        _port->setPortName(port);
+        connect();
+    }
+    else
+    {
+        _port->setPortName(port);
+    }
+
     qDebug() << "Port set to " << _port->portName();
 
     refreshStatusText();
@@ -252,6 +268,12 @@ QString SimpleTerminal::errorText() const
 bool SimpleTerminal::isConnected() const
 {
     return _port->isOpen();
+}
+
+//**********************************************************************************************************************
+QString SimpleTerminal::getPortName() const
+{
+    return _port->portName();
 }
 
 //**********************************************************************************************************************
@@ -365,6 +387,191 @@ void SimpleTerminal::setError(const QString &msg)
 }
 
 //**********************************************************************************************************************
+void SimpleTerminal::restoreSettings()
+{
+    QSettings settings;
+
+    // Baud Rate
+    _port->setBaudRate(settings.value("port/baudrate", _port->baudRate()).toInt());
+
+    // Data Bits
+    if (settings.contains("port/databits"))
+    {
+        qint32 dataBits = settings.value("port/databits").toInt();
+        switch (dataBits)
+        {
+            case 5:
+                _port->setDataBits(QSerialPort::Data5);
+                break;
+
+            case 6:
+                _port->setDataBits(QSerialPort::Data6);
+                break;
+
+            case 7:
+                _port->setDataBits(QSerialPort::Data7);
+                break;
+
+            default:
+            case 8:
+                _port->setDataBits(QSerialPort::Data8);
+                break;
+        }
+    }
+
+    // Parity
+    if (settings.contains("port/parity"))
+    {
+        QString parity = settings.value("port/parity").toString();
+        if (parity == "Even")
+        {
+            _port->setParity(QSerialPort::EvenParity);
+        }
+        else if (parity == "Odd")
+        {
+            _port->setParity(QSerialPort::OddParity);
+        }
+        else
+        {
+            _port->setParity(QSerialPort::NoParity);
+        }
+    }
+
+    // Stop Bits
+    if (settings.contains("port/stopbits"))
+    {
+        float stopbits = settings.value("port/stopbits").toFloat();
+        if (stopbits == 1)
+        {
+            _port->setStopBits(QSerialPort::OneStop);
+        }
+        else if (stopbits == 1.5)
+        {
+            _port->setStopBits(QSerialPort::OneAndHalfStop);
+        }
+        else
+        {
+            _port->setStopBits(QSerialPort::TwoStop);
+        }
+    }
+
+    // Flow Control
+    if (settings.contains("port/flowcontrol"))
+    {
+        QString flow = settings.value("port/flowcontrol").toString();
+        if (flow == "Hardware")
+        {
+            _port->setFlowControl(QSerialPort::HardwareControl);
+        }
+        else if (flow == "Software")
+        {
+            _port->setFlowControl(QSerialPort::SoftwareControl);
+        }
+        else
+        {
+            _port->setFlowControl(QSerialPort::NoFlowControl);
+        }
+    }
+
+    // EOM
+    _eom = settings.value("port/eom", "\r").toString();
+
+    // Port
+    if (settings.contains("port/name"))
+    {
+        QString portName = settings.value("port/name").toString();
+        setPort(portName);
+    }
+}
+
+//**********************************************************************************************************************
+void SimpleTerminal::saveSettings() const
+{
+    QSettings settings;
+
+    // Baud Rate
+    settings.setValue("port/baudrate", _port->baudRate());
+
+    // Data Bits
+    switch (_port->dataBits())
+    {
+        case QSerialPort::Data5:
+            settings.setValue("port/databits", 5);
+            break;
+
+        case QSerialPort::Data6:
+            settings.setValue("port/databits", 6);
+            break;
+
+        case QSerialPort::Data7:
+            settings.setValue("port/databits", 7);
+            break;
+
+        default:
+        case QSerialPort::Data8:
+            settings.setValue("port/databits", 8);
+            break;
+    }
+
+    // Parity
+    switch (_port->parity())
+    {
+        case QSerialPort::EvenParity:
+            settings.setValue("port/parity", "Even");
+            break;
+
+        case QSerialPort::OddParity:
+            settings.setValue("port/parity", "Odd");
+            break;
+
+        default:
+        case QSerialPort::NoParity:
+            settings.setValue("port/parity", "None");
+            break;
+    }
+
+    // Stop Bits
+    switch (_port->stopBits())
+    {
+        default:
+        case QSerialPort::OneStop:
+            settings.setValue("port/stopbits", 1.0);
+            break;
+
+        case QSerialPort::OneAndHalfStop:
+            settings.setValue("port/stopbits", 1.5);
+            break;
+
+        case QSerialPort::TwoStop:
+            settings.setValue("port/stopbits", 2.0);
+            break;
+    }
+
+    // Flow Control
+    switch (_port->flowControl())
+    {
+        default:
+        case QSerialPort::NoFlowControl:
+            settings.setValue("port/flowcontrol", "None");
+            break;
+
+        case QSerialPort::HardwareControl:
+            settings.setValue("port/flowcontrol", "Hardware");
+            break;
+
+        case QSerialPort::SoftwareControl:
+            settings.setValue("port/flowcontrol", "Software");
+            break;
+    }
+
+    // EOM
+    settings.setValue("port/eom", _eom);
+
+    // Port
+    settings.setValue("port/name", _port->portName());
+}
+
+//**********************************************************************************************************************
 void SimpleTerminal::cmdClear(SimpleTerminal &st, const QStringList &)
 {
     emit st.clearDisplayText();
@@ -375,13 +582,9 @@ void SimpleTerminal::cmdConnect(SimpleTerminal &st, const QStringList &args)
 {
     if (args.size() > 0)
     {
-        if (!st._port->isOpen())
-        {
-            st.setPort(args[0]);
-            st.connect();
-        }
-        else
-            st.setError("Already connected");
+        st.disconnect();
+        st.setPort(args[0]);
+        st.connect();
     }
     else
     {
@@ -594,4 +797,12 @@ void SimpleTerminal::refreshStatusText()
 
     setStatusText(newText);
 
+}
+
+//**********************************************************************************************************************
+void SimpleTerminal::settingsChanged()
+{
+    refreshStatusText();
+
+    saveSettings();
 }
