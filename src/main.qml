@@ -260,63 +260,11 @@ ApplicationWindow {
 
                 // Baud Rate
                 console.log("Current baud rate: ", serialPort.baudRate)
-                switch (serialPort.baudRate)
-                {
-                    default:
-                    case 1200:
-                        baudRateCombo.currentIndex = 0
-                        break
-
-                    case 2400:
-                        baudRateCombo.currentIndex = 1
-                        break
-
-                    case 4800:
-                        baudRateCombo.currentIndex = 2
-                        break
-
-                    case 9600:
-                        baudRateCombo.currentIndex = 3
-                        break
-
-                    case 19200:
-                        baudRateCombo.currentIndex = 4
-                        break
-
-                    case 38400:
-                        baudRateCombo.currentIndex = 5
-                        break
-
-                    case 57600:
-                        baudRateCombo.currentIndex = 6
-                        break
-
-                    case 115200:
-                        baudRateCombo.currentIndex = 7
-                        break
-                }
+                baudRateCombo.currentIndex = baudRateCombo.find((serialPort.baudRate).toString())
 
                 // Data Bits
-                console.log("Current data bits: " + serialPort.dataBits)
-                switch (serialPort.dataBits)
-                {
-                    default:
-                    case 5:
-                        dataBitsCombo.currentIndex = 0
-                        break
-
-                    case 6:
-                        dataBitsCombo.currentIndex = 1
-                        break;
-
-                    case 7:
-                        dataBitsCombo.currentIndex = 2
-                        break
-
-                    case 8:
-                        dataBitsCombo.currentIndex = 3
-                        break
-                }
+                console.log("Current data bits: " + serialPort.dataBits + " ")
+                dataBitsCombo.currentIndex = dataBitsCombo.find((serialPort.dataBits).toString())
 
                 // Parity
                 console.log("Parity: " + serialPort.parity)

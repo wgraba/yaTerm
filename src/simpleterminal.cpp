@@ -705,7 +705,7 @@ void SimpleTerminal::refreshStatusText()
     else
         newText += "<strong>Disconnected</strong>";
 
-    newText += " " + (_port->portName() == "" ? "None" : _port->portName()) + " " + QString::number( _port->baudRate());
+    newText += " " + (getPortName() == "" ? "None" : getPortName()) + " " + QString::number( _port->baudRate());
 
     QString dataBits = "-";
     switch (_port->dataBits())
@@ -773,7 +773,7 @@ void SimpleTerminal::refreshStatusText()
 
     newText += " " + dataBits + parity + stopBits;
 
-    QString flowControl = "Unknown";
+    QString flowControl = "-";
     switch (_port->flowControl())
     {
         case QSerialPort::HardwareControl:
@@ -789,11 +789,23 @@ void SimpleTerminal::refreshStatusText()
             break;
 
         default:
-            flowControl = "Unknown";
+            flowControl = "-";
             break;
     }
 
     newText += " " + flowControl;
+
+    QString EOM = "-";
+    if (_eom == "\r")
+        EOM = "CR";
+    else if (_eom == "\n")
+        EOM = "LF";
+    else if (_eom == "\r\n")
+        EOM = "CR+LF";
+    else
+        EOM = "-";
+
+    newText += " " + EOM;
 
     setStatusText(newText);
 
