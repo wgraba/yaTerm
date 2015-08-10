@@ -232,15 +232,24 @@ ApplicationWindow {
         font.pointSize: 10
         font.weight: Font.Normal
 
+        Settings {
+            category: "ConsoleOutput"
+            property alias fontFamily: consoleOutput.font.family
+            property alias fontPointSize: consoleOutput.font.pointSize
+            property alias fontWeight: consoleOutput.font.weight
+        }
+
     }
 
     MessageDialog {
         id: aboutDialog
         icon: StandardIcon.Information
         modality: Qt.ApplicationModal
-        text: { "<p><strong>y</strong>et <strong>a</strong>nother Serial <strong>Term</strong>inal " +
-                Qt.application.version +
+        text: { "<p><strong>y</strong>et <strong>a</strong>nother Serial "+ "<strong>Term</strong>inal " +
+                Qt.application.version + "</p>" +
                 "<p><em>by Wesley Graba</em></p>" +
+                "<p><a href=\"https://github.com/wgraba/yaTerm/blob/master/LICENSE.md\">License</a></p>" +
+                "<p><a href=\"https://github.com/wgraba/yaTerm\">GitHub project</a></p>" +
                 "<p>The program is provided AS IS with NO WARRANTY OF ANY KIND.</p>" }
         title: qsTr("About ") + Qt.application.name
     }
