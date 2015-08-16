@@ -49,9 +49,7 @@ const QMap<QString, QStringList> CommandParser::cmdHelpMap = {
 //**********************************************************************************************************************
 CommandParser::CommandParser(SimpleTerminal &terminal)
     : _terminal(terminal)
-{
-
-}
+{}
 
 //**********************************************************************************************************************
 void CommandParser::cmdClear(SimpleTerminal &st, const QStringList &)

@@ -37,6 +37,7 @@ class CommandParser
 {
 public:
     explicit CommandParser(SimpleTerminal &terminal);
+    ~CommandParser() {}
 
     void processCommand(const QString &cmd);
 
