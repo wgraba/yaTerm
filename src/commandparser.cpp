@@ -94,15 +94,26 @@ void CommandParser::cmdHelp(SimpleTerminal &st, const QStringList &args)
         if (cmdHelpMap.contains(args[0]))
         {
             QStringList help = cmdHelpMap.value(args[0]);
+            QStringList params(help);
+            params.removeLast();
+            QString helpText = help.last();
 
-            rspStr.append("<span style=\"color: BlueViolet;\">Usage</span>: " + args[0] + " ");
+            // Command name
+            rspStr.append("<span style=\"color: BlueViolet;\">Usage</span>: " + args[0]);
 
+            // Parameters
             rspStr.append("<i>");
-            rspStr.append(help[0]);
+            foreach (const QString &param, params)
+            {
+                rspStr.append(" " + param);
+            }
             rspStr.append("</i><br><br>");
 
-            QString helpText = help.last();
-            helpText.replace(help[0], "<i>" + help[0] + "</i>");
+            // Help text
+            foreach (const QString &param, params)
+            {
+                helpText.replace(param, "<i>" + param + "</i>");
+            }
             rspStr.append(helpText);
         }
         else
