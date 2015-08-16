@@ -40,9 +40,9 @@ const QMap<QString, CommandParser::CmdFunc> CommandParser::cmdMap = {
 // @todo: Combine cmdHelpMap and cmdMap?
 const QMap<QString, QStringList> CommandParser::cmdHelpMap = {
     { "/clear", { "", "Clear the screen" } },
-    { "/connect", { "portName", "Connect to port" } },
+    { "/connect", { "portName", "Connect to port portName" } },
     { "/disconnect", { "", "Disconnect from port" } },
-    { "/help", { "[command]", "Get help" } },
+    { "/help", { "[command]", "Get help if [command] is specified. Otherwise, list all commands." } },
     { "/quit", { "", "Quit" } },
 };
 
@@ -95,9 +95,15 @@ void CommandParser::cmdHelp(SimpleTerminal &st, const QStringList &args)
         {
             QStringList help = cmdHelpMap.value(args[0]);
 
-            rspStr.append("<span style=\"color: BlueViolet;\">Usage</span>: " + args[0] + " <i>" + help[0] +
-                    "</i><br><br>");
-            rspStr.append(help[1]);
+            rspStr.append("<span style=\"color: BlueViolet;\">Usage</span>: " + args[0] + " ");
+
+            rspStr.append("<i>");
+            rspStr.append(help[0]);
+            rspStr.append("</i><br><br>");
+
+            QString helpText = help.last();
+            helpText.replace(help[0], "<i>" + help[0] + "</i>");
+            rspStr.append(helpText);
         }
         else
             st.setError("Unknown command");
