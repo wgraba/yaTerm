@@ -23,29 +23,13 @@
 ******************************************************************************/
 
 #include "simpleterminal.h"
+#include "commandparser.h"
 
 #include <QApplication>
 #include <QSerialPort>
 #include <QSettings>
 
-//**********************************************************************************************************************
-const QMap<QString, SimpleTerminal::CmdFunc> SimpleTerminal::cmdMap = {
-    { "/clear", SimpleTerminal::cmdClear },
-    { "/connect", SimpleTerminal::cmdConnect },
-    { "/disconnect", SimpleTerminal::cmdDisconnect },
-    { "/help", SimpleTerminal::cmdHelp },
-    { "/quit", SimpleTerminal::cmdQuit },
-};
 
-//**********************************************************************************************************************
-// @todo: Combine cmdHelpMap and cmdMap?
-const QMap<QString, QStringList> SimpleTerminal::cmdHelpMap = {
-    { "/clear", { "", "Clear the screen" } },
-    { "/connect", { "portName", "Connect to port" } },
-    { "/disconnect", { "", "Disconnect from port" } },
-    { "/help", { "[command]", "Get help" } },
-    { "/quit", { "", "Quit" } },
-};
 
 //**********************************************************************************************************************
 SimpleTerminal::SimpleTerminal(QSerialPort *port, QObject *parent) :
@@ -54,9 +38,12 @@ SimpleTerminal::SimpleTerminal(QSerialPort *port, QObject *parent) :
     _port(port),
     _eom("\r"),
     _inputHistory(),
-    _inputHistoryIdx(-1)
+    _inputHistoryIdx(-1),
+    _cmdParser(nullptr)
 {
     Q_CHECK_PTR(_port);
+
+    _cmdParser = new CommandParser(*this);
 
     // Restore settings
     restoreSettings();
@@ -76,6 +63,7 @@ SimpleTerminal::SimpleTerminal(QSerialPort *port, QObject *parent) :
 //**********************************************************************************************************************
 SimpleTerminal::~SimpleTerminal()
 {
+    delete _cmdParser;
 }
 
 //**********************************************************************************************************************
@@ -219,7 +207,7 @@ void SimpleTerminal::resetHistoryIdx()
 void SimpleTerminal::parseInput(const QString &msg)
 {
     if (msg.startsWith('/'))
-        processCommand(msg);
+        _cmdParser->processCommand(msg);
     else if (msg.startsWith("\\/"))
         write(msg.mid(1));
     else
@@ -569,108 +557,6 @@ void SimpleTerminal::saveSettings() const
 
     // Port
     settings.setValue("port/name", _port->portName());
-}
-
-//**********************************************************************************************************************
-void SimpleTerminal::cmdClear(SimpleTerminal &st, const QStringList &)
-{
-    emit st.clearDisplayText();
-}
-
-//**********************************************************************************************************************
-void SimpleTerminal::cmdConnect(SimpleTerminal &st, const QStringList &args)
-{
-    if (args.size() > 0)
-    {
-        st.disconnect();
-        st.setPort(args[0]);
-        st.connect();
-    }
-    else
-    {
-        st.setError("Wrong number of arguments");
-    }
-}
-
-//**********************************************************************************************************************
-void SimpleTerminal::cmdDisconnect(SimpleTerminal &st, const QStringList &)
-{
-    st.disconnect();
-}
-
-//**********************************************************************************************************************
-void SimpleTerminal::cmdQuit(SimpleTerminal &st, const QStringList &)
-{
-    st.disconnect();
-    QApplication::quit();
-}
-
-//**********************************************************************************************************************
-void SimpleTerminal::cmdHelp(SimpleTerminal &st, const QStringList &args)
-{
-    QString rspStr;
-    if (args.size() > 0)
-    {
-        if (cmdHelpMap.contains(args[0]))
-        {
-            QStringList help = cmdHelpMap.value(args[0]);
-
-            rspStr.append("<span style=\"color: BlueViolet;\">Usage</span>: " + args[0] + " <i>" + help[0] +
-                    "</i><br><br>");
-            rspStr.append(help[1]);
-        }
-        else
-            st.setError("Unknown command");
-    }
-    else
-    {
-        QMap<QString, QStringList>::const_iterator cmd = cmdHelpMap.constBegin();
-        bool isFirst = true; // @todo: Find a better way
-        while (cmd != cmdHelpMap.constEnd())
-        {
-            QStringList help = cmd.value();
-            QString cmdName = cmd.key();
-
-            if (isFirst)
-                isFirst = false;
-            else
-                rspStr.append("<br>");
-
-            rspStr.append("<span style=\"color: BlueViolet;\">" + cmdName + "</span>: " + help[1]);
-
-            ++cmd;
-        }
-    }
-
-    if (rspStr.length() > 0)
-        st.modifyDspText(DspType::COMMAND_RSP, rspStr);
-}
-
-//**********************************************************************************************************************
-void SimpleTerminal::processCommand(const QString &cmd)
-{
-    qDebug() << "Command: " << cmd;
-
-    if (cmd.length() < 1)
-        return; // Do nothing if there is no command
-
-    modifyDspText(DspType::COMMAND, cmd);
-
-    QStringList cmdList = cmd.split(' '); // Command is first item, parameters are what's left
-    QString cmdName = cmdList[0];
-    cmdList.removeFirst();
-    QStringList &args = cmdList;
-    if (cmdMap.contains(cmdName))
-    {
-        CmdFunc cmdFunc = (cmdMap.value(cmdName));
-
-        Q_CHECK_PTR(cmdFunc);
-        cmdFunc(*this, args);
-    }
-    else
-    {
-        setError("Invalid command");
-    }
 }
 
 //**********************************************************************************************************************

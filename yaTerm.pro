@@ -7,7 +7,8 @@ CONFIG += c++11
 SOURCES += \
     src/main.cpp \
     src/simpleterminal.cpp \
-    src/portswatcher.cpp
+    src/portswatcher.cpp \
+    src/commandparser.cpp
 
 RESOURCES += qml.qrc
 
@@ -19,4 +20,5 @@ include(deployment.pri)
 
 HEADERS += \
     src/simpleterminal.h \
-    src/portswatcher.h
+    src/portswatcher.h \
+    src/commandparser.h

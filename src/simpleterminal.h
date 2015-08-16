@@ -32,6 +32,9 @@
 #include <QMap>
 
 //**********************************************************************************************************************
+class CommandParser;
+
+//**********************************************************************************************************************
 class SimpleTerminal : public QObject
 {
     Q_OBJECT
@@ -67,6 +70,7 @@ public:
     void modifyDspText(DspType type, const QString &text);
     void setEOM(QString newEOM);
     Q_INVOKABLE void resetHistoryIdx();
+    void setError(const QString &msg);
 
 signals:
     void statusTextChanged();
@@ -95,18 +99,9 @@ private:
 
     void setStatusText(const QString &text);
     void setErrorText(const QString &text);
-    void processCommand(const QString &cmd);
     void write(const QString &msg);
-    void setError(const QString &msg);
     void restoreSettings();
     void saveSettings() const;
-
-    // Commands
-    static void cmdClear(SimpleTerminal &st, const QStringList &);
-    static void cmdConnect(SimpleTerminal &st, const QStringList &args);
-    static void cmdDisconnect(SimpleTerminal &st, const QStringList &);
-    static void cmdQuit(SimpleTerminal &st, const QStringList &);
-    static void cmdHelp(SimpleTerminal &st, const QStringList &args);
 
     QString _statusText;
     QString _errorText;
@@ -118,9 +113,7 @@ private:
 
     int _maxDisplayTextChars = 1024 * 8;
 
-    typedef void (*CmdFunc)(SimpleTerminal &, const QStringList &);
-    static const QMap<QString, CmdFunc> cmdMap;
-    static const QMap<QString, QStringList> cmdHelpMap;
+    CommandParser *_cmdParser;
 
 };
 
