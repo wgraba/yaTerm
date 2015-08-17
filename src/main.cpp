@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
     app.setOrganizationName("No Org");
     app.setOrganizationDomain("noorg.org");
     app.setApplicationName("yaTerm");
-    app.setApplicationVersion("0.1.2");
+    app.setApplicationVersion("0.2.0");
     app.setWindowIcon(QIcon(":/images/icon.svg"));
 
     QQmlApplicationEngine engine;
