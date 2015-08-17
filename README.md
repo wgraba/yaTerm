@@ -57,7 +57,7 @@ available as part of the [Qt SDK](http://qt-project.org/downloads)).
 Prerequesites
 -------------
 
-* Qt 5.5+ (Standard Qt + Qt Quick Controls)
+* Qt 5.4+ (Standard Qt + Qt Quick Controls + QtSerialPort)
 * Appropriate compiler such as GCC 4.8+
 
 The easiest way to get all the prerequisites is to download the [Qt SDK](http://qt-project.org/downloads).
