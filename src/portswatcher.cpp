@@ -26,7 +26,7 @@
 #include <QStringList>
 
 #include <QQmlApplicationEngine>
-#include <QQuickView>
+//#include <QQuickView>
 #include <QQmlContext>
 #include <QSerialPortInfo>
 

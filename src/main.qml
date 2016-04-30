@@ -22,9 +22,9 @@
  * SOFTWARE.
 ******************************************************************************/
 
-import QtQuick 2.4
-import QtQuick.Controls 1.3
-import QtQuick.Layouts 1.1
+import QtQuick 2.6
+import QtQuick.Controls 1.5
+import QtQuick.Layouts 1.3
 import QtQuick.Dialogs 1.2
 import Qt.labs.settings 1.0
 
@@ -470,7 +470,7 @@ ApplicationWindow {
             ComboBox {
                 id: baudRateCombo
                 model: baudListModel
-                currentIndex: { baudListModel.count() - 1}
+                currentIndex: { baudListModel.count - 1}
             }
 
             Label { text: "<strong>Data Bits</strong>" }

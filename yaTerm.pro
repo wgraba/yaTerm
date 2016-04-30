@@ -1,6 +1,6 @@
 TEMPLATE = app
 
-QT += qml quick widgets serialport
+QT += qml widgets serialport
 CONFIG += c++11
 #QMAKE_CXXFLAGS += -std=c++11
 
