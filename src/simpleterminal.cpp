@@ -36,6 +36,7 @@ SimpleTerminal::SimpleTerminal(QSerialPort *port, QObject *parent) :
     QObject(parent),
     _statusText(QString()),
     _port(port),
+    _som(),
     _eom("\r"),
     _inputHistory(),
     _inputHistoryIdx(-1),
@@ -179,14 +180,15 @@ void SimpleTerminal::modifyDspText(DspType type, const QString &text)
 
             break;
         }
-
-        default:
-            QString msg = "<br><span>" + sanitizedText + "</span>";
-
-            emit appendDisplayText(msg);
-
-            break;
     }
+}
+
+//**********************************************************************************************************************
+void SimpleTerminal::setSOM(QString newSOM)
+{
+    _som = newSOM;
+
+    emit somChanged();
 }
 
 //**********************************************************************************************************************
@@ -262,6 +264,12 @@ bool SimpleTerminal::isConnected() const
 QString SimpleTerminal::getPortName() const
 {
     return _port->portName();
+}
+
+//**********************************************************************************************************************
+QString SimpleTerminal::getSOM() const
+{
+    return _som;
 }
 
 //**********************************************************************************************************************
@@ -351,9 +359,9 @@ void SimpleTerminal::disconnect()
 //**********************************************************************************************************************
 void SimpleTerminal::write(const QString &msg)
 {
-    QString txMsg = msg + _eom;
+    QString txMsg = _som + msg + _eom;
 
-    qDebug() << "Write:" << txMsg << QByteArray(msg.toLocal8Bit()).toHex();
+    qDebug() << "Write:" << txMsg << QByteArray(txMsg.toLocal8Bit()).toHex();
 
     modifyDspText(DspType::WRITE_MESSAGE, txMsg);
     if (_port->isOpen())

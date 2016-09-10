@@ -22,7 +22,7 @@
  * SOFTWARE.
 ******************************************************************************/
 
-import QtQuick 2.6
+import QtQuick 2.7
 import QtQuick.Controls 1.5
 import QtQuick.Layouts 1.3
 import QtQuick.Dialogs 1.2
@@ -257,26 +257,22 @@ ApplicationWindow {
     Dialog {
         id: settingsDialog
         modality: Qt.WindowModal
-        standardButtons: StandardButton.Apply | StandardButton.Cancel
+        standardButtons: StandardButton.Ok | StandardButton.Cancel
         title: qsTr("Settings")
         width: settingsLayout.width + 50
 
         onVisibleChanged: {
             if (visible) {
                 // Ports
-                console.log("Current port: ", simpleTerminal.getPortName())
                 portCombo.currentIndex = portCombo.find(simpleTerminal.getPortName())
 
                 // Baud Rate
-                console.log("Current baud rate: ", serialPort.baudRate)
                 baudRateCombo.currentIndex = baudRateCombo.find((serialPort.baudRate).toString())
 
                 // Data Bits
-                console.log("Current data bits: " + serialPort.dataBits + " ")
                 dataBitsCombo.currentIndex = dataBitsCombo.find((serialPort.dataBits).toString())
 
                 // Parity
-                console.log("Parity: " + serialPort.parity)
                 switch (serialPort.parity)
                 {
                     default:
@@ -295,7 +291,6 @@ ApplicationWindow {
                 }
 
                 // Stop bits
-                console.log("Stop bits: " + serialPort.stopBits)
                 switch (serialPort.stopBits)
                 {
                     default:
@@ -313,7 +308,6 @@ ApplicationWindow {
                 }
 
                 // Flow control
-                console.log("Flow control: " + serialPort.flowControl)
                 switch (serialPort.flowControl)
                 {
                     default:
@@ -335,32 +329,28 @@ ApplicationWindow {
                 {
                     default:
                     case "\r":
-                        console.log("EOM: CR")
                         eomCombo.currentIndex = 0
                         break;
 
                     case "\n":
-                        console.log("EOM: LF")
                         eomCombo.currentIndex = 1
                         break;
 
                     case "\r\n":
-                        console.log("EOM: CR+LF")
                         eomCombo.currentIndex = 2
                         break;
 
                     case "":
-                        console.log("EOM: None")
                         eomCombo.currentIndex = 3
                 }
 
             }
         }
 
-        onApply: {
+        onAccepted: {
             console.log("Applying new settings: " + portCombo.currentText + " " + baudRateCombo.currentText + " " +
                         dataBitsCombo.currentText + " " + parityCombo.currentText + " " + stopCombo.currentText + " " +
-                        flowCombo.currentText, " " + eomCombo.currentText)
+                        flowCombo.currentText + " " + somCombo.currentText + " " + eomCombo.currentText)
 
             // Baud rate
             serialPort.baudRate = baudRateCombo.currentText
@@ -425,6 +415,22 @@ ApplicationWindow {
 
                 default:
                     serialPort.flowControl = "UnknownFlowControl"
+                    break;
+            }
+            // SOM
+            switch (somCombo.currentIndex)
+            {
+                default:
+                case 0:
+                    simpleTerminal.som = "";
+                    break;
+
+                case 1:
+                    simpleTerminal.som = "@";
+                    break;
+
+                case 2:
+                    simpleTerminal.som = "#"
                     break;
             }
 
@@ -501,10 +507,16 @@ ApplicationWindow {
                 currentIndex: 0
             }
 
+            Label { text: "<strong>Start-of-Message Prefix</strong>" }
+            ComboBox {
+                id: somCombo
+                model: ["None", "@", "#"]
+                currentIndex: 0
+            }
+
             Label { text: "<strong>End-of-Message Terminator</strong>" }
             ComboBox {
                 id: eomCombo
-//                model: ["CR", "LF"]
                 model: ["CR", "LF", "CR+LF", "None"]
                 currentIndex: 0
             }

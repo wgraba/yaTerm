@@ -42,6 +42,7 @@ class SimpleTerminal : public QObject
     Q_PROPERTY(QString statusText READ statusText NOTIFY statusTextChanged)
     Q_PROPERTY(QString errorText READ errorText NOTIFY errorTextChanged)
     Q_PROPERTY(bool connState READ isConnected NOTIFY connStateChanged)
+    Q_PROPERTY(QString som READ getSOM WRITE setSOM NOTIFY somChanged)
     Q_PROPERTY(QString eom READ getEOM WRITE setEOM NOTIFY eomChanged)
 
 public:
@@ -61,6 +62,7 @@ public:
     QString errorText() const;
     bool isConnected() const;
     Q_INVOKABLE QString getPortName() const;
+    QString getSOM() const;
     QString getEOM() const;
     int getInputHistoryLen() const;
     Q_INVOKABLE QString getInputHistoryIdx(int idx) const;
@@ -68,6 +70,7 @@ public:
     Q_INVOKABLE QString getNextHistory();
 
     void modifyDspText(DspType type, const QString &text);
+    void setSOM(QString newSOM);
     void setEOM(QString newEOM);
     Q_INVOKABLE void resetHistoryIdx();
     void setError(const QString &msg);
@@ -76,6 +79,7 @@ signals:
     void statusTextChanged();
     void errorTextChanged();
     void connStateChanged();
+    void somChanged();
     void eomChanged();
     void maxDspTxtCharsChanged();
     void insertDisplayText(QString text);
@@ -106,6 +110,7 @@ private:
     QString _statusText;
     QString _errorText;
     QSerialPort *_port;
+    QString _som;
     QString _eom;
 
     QStringList _inputHistory;
