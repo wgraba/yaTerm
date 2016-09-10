@@ -324,24 +324,50 @@ ApplicationWindow {
                         break
                 }
 
+                // SOM
+                switch (simpleTerminal.som)
+                {
+                    case "":
+                        somCombo.currentIndex = 0
+                        break
+
+                    case "@":
+                        somCombo.currentIndex = 1
+                        break
+
+                    case "#":
+                        somCombo.currentIndex = 2
+                        break
+
+                    default:
+                        somCombo.currentIndex = 3
+                        somCustom.text = simpleTerminal.som
+                        break
+                }
+
                 // EOM
                 switch (simpleTerminal.eom)
                 {
-                    default:
                     case "\r":
                         eomCombo.currentIndex = 0
-                        break;
+                        break
 
                     case "\n":
                         eomCombo.currentIndex = 1
-                        break;
+                        break
 
                     case "\r\n":
                         eomCombo.currentIndex = 2
-                        break;
+                        break
 
                     case "":
                         eomCombo.currentIndex = 3
+                        break
+
+                    default:
+                        eomCombo.currentIndex = 4
+                        eomCustom.text = simpleTerminal.eom
+                        break
                 }
 
             }
@@ -363,19 +389,19 @@ ApplicationWindow {
             {
                 case 0:
                     serialPort.parity = "NoParity"
-                    break;
+                    break
 
                 case 1:
                     serialPort.parity = "EvenParity"
-                    break;
+                    break
 
                 case 2:
                     serialPort.parity = "OddParity"
-                    break;
+                    break
 
                  default:
                      serialPort.parity = "UnknownParity"
-                     break;
+                     break
             }
 
             // Stop bits
@@ -383,19 +409,19 @@ ApplicationWindow {
             {
                 case 0:
                     serialPort.stopBits = "OneStop"
-                    break;
+                    break
 
                 case 1:
                     serialPort.stopBits = "OneAndHalfStop"
-                    break;
+                    break
 
                 case 2:
                     serialPort.stopBits = "TwoStop"
-                    break;
+                    break
 
                 default:
                     serialPort.stopBits = "UnknownStopBits"
-                    break;
+                    break
             }
 
             // Flow control
@@ -403,19 +429,19 @@ ApplicationWindow {
             {
                 case 0:
                     serialPort.flowControl = "NoFlowControl"
-                    break;
+                    break
 
                 case 1:
                     serialPort.flowControl = "HardwareControl"
-                    break;
+                    break
 
                 case 2:
                     serialPort.flowControl = "SoftwareControl"
-                    break;
+                    break
 
                 default:
                     serialPort.flowControl = "UnknownFlowControl"
-                    break;
+                    break
             }
             // SOM
             switch (somCombo.currentIndex)
@@ -423,15 +449,19 @@ ApplicationWindow {
                 default:
                 case 0:
                     simpleTerminal.som = "";
-                    break;
+                    break
 
                 case 1:
                     simpleTerminal.som = "@";
-                    break;
+                    break
 
                 case 2:
                     simpleTerminal.som = "#"
-                    break;
+                    break
+
+                case 3:
+                    simpleTerminal.som = somCustom.text
+                    break
             }
 
             // EOM
@@ -440,19 +470,23 @@ ApplicationWindow {
                 default:
                 case 0:
                     simpleTerminal.eom = "\r";
-                    break;
+                    break
 
                 case 1:
                     simpleTerminal.eom = "\n";
-                    break;
+                    break
 
                 case 2:
                     simpleTerminal.eom = "\r\n";
-                    break;
+                    break
 
                 case 3:
                     simpleTerminal.eom = "";
-                    break;
+                    break
+
+                case 4:
+                    simpleTerminal.eom = eomCustom.text
+                    break
             }
 
 
@@ -464,12 +498,13 @@ ApplicationWindow {
 
         GridLayout {
             id: settingsLayout
-            columns: 2
+            columns: 3
 
             Label { text: "<strong>Port</strong>" }
             ComboBox {
                 id: portCombo
                 model: portsListModel
+                Layout.columnSpan: 2
             }
 
             Label { text: "<strong>Baud Rate</strong>" }
@@ -477,6 +512,7 @@ ApplicationWindow {
                 id: baudRateCombo
                 model: baudListModel
                 currentIndex: { baudListModel.count - 1}
+                Layout.columnSpan: 2
             }
 
             Label { text: "<strong>Data Bits</strong>" }
@@ -484,6 +520,7 @@ ApplicationWindow {
                 id: dataBitsCombo
                 model: [5, 6, 7, 8]
                 currentIndex: 3
+                Layout.columnSpan: 2
             }
 
             Label { text: "<strong>Parity</strong>" }
@@ -491,6 +528,7 @@ ApplicationWindow {
                 id: parityCombo
                 model: ["None", "Even", "Odd"]
                 currentIndex: 0
+                Layout.columnSpan: 2
             }
 
             Label { text: "<strong>Stop Bits</strong>" }
@@ -498,6 +536,7 @@ ApplicationWindow {
                 id: stopCombo
                 model: [1, 1.5, 2]
                 currentIndex: 0
+                Layout.columnSpan: 2
             }
 
             Label { text: "<strong>Flow Control</strong>" }
@@ -505,20 +544,54 @@ ApplicationWindow {
                 id: flowCombo
                 model: ["None", "Hardware", "Software"]
                 currentIndex: 0
+                Layout.columnSpan: 2
             }
 
             Label { text: "<strong>Start-of-Message Prefix</strong>" }
             ComboBox {
                 id: somCombo
-                model: ["None", "@", "#"]
+                model: ["None", "@", "#", "Custom..."]
                 currentIndex: 0
+
+                onActivated: {
+                    if (index == 3)
+                    {
+                        somCustom.enabled = true
+                    }
+
+                    else
+                    {
+                        somCustom.enabled = false
+                    }
+                }
+            }
+            TextField {
+                id: somCustom
+                placeholderText: qsTr("Custom SOM...")
+                enabled: false
             }
 
             Label { text: "<strong>End-of-Message Terminator</strong>" }
             ComboBox {
                 id: eomCombo
-                model: ["CR", "LF", "CR+LF", "None"]
+                model: ["CR", "LF", "CR+LF", "None", "Custom..."]
                 currentIndex: 0
+
+                onActivated: {
+                    if (index == 4)
+                    {
+                        eomCustom.enabled = true
+                    }
+                    else
+                    {
+                        eomCustom.enabled = false
+                    }
+                }
+            }
+            TextField {
+                id: eomCustom
+                placeholderText: qsTr("Custom EOM...")
+                enabled: false
             }
         }
     }

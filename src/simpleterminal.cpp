@@ -469,6 +469,9 @@ void SimpleTerminal::restoreSettings()
         }
     }
 
+    // SOM
+    _som = settings.value("port/som", "").toString();
+
     // EOM
     _eom = settings.value("port/eom", "\r").toString();
 
@@ -559,6 +562,9 @@ void SimpleTerminal::saveSettings() const
             settings.setValue("port/flowcontrol", "Software");
             break;
     }
+
+    // SOM
+    settings.setValue("port/som", _som);
 
     // EOM
     settings.setValue("port/eom", _eom);
@@ -689,15 +695,39 @@ void SimpleTerminal::refreshStatusText()
 
     newText += " " + flowControl;
 
+    QString SOM = "-";
+    if (_som.length() > 0)
+    {
+        SOM = _som;
+    }
+
+    else
+    {
+        SOM = "-";
+    }
+
+    newText += " " + SOM;
+
     QString EOM = "-";
     if (_eom == "\r")
         EOM = "CR";
+
     else if (_eom == "\n")
         EOM = "LF";
+
     else if (_eom == "\r\n")
         EOM = "CR+LF";
+
     else
-        EOM = "-";
+        if (_eom.length() > 0)
+        {
+            EOM = _eom;
+        }
+
+        else
+        {
+            EOM = "-";
+        }
 
     newText += " " + EOM;
 
