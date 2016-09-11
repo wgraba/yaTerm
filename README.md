@@ -3,7 +3,7 @@ yaTerm
 
 **y**et **a**nother Serial **Term**inal
 
-![yaTerm in action](https://lh3.googleusercontent.com/vea0VUPOtPPdU1lNEF3SkDm4iWO7GIo5pOxhQ1huYlE=w714-h531-no)
+![yaTerm in action](https://lh3.googleusercontent.com/0WPrZf9qU1sOE8bHxiCkF_NCN23_zyr0mDKsQ6rZrFlSnR9zhLaWogUsSp6y1N-ZGgUa0MgZjr9CrVJ3CK8iI09SiIyJrmMVn02pJDTqiXLPg2knPbtOBXERefXSXPPudJ49QorsZU5ZXfAtKiAcdQdWkCK_Tmfm95S9SQm5-iHdLxB_oyqW_0tjcZe8x7c5cgrr4j3PRLIBuEL7EtWGcqe2RBy_DdjNAqpi-b1i4E8VxOGiDF_iRvcSasuqUVH_hY2vl_qhMT602LP9iSxh3DSKgzoSkZwGikI0sW9Jv8v-finksiMh5FXOJ_Rsnj6EZ-KCPM3DzTAc_xepNDdIT5O74LGbIaIOKOkPcUHz_4u6zaz2Xc_VR1NfTm-dNrKyBKlHCurvF4ssMQpSQnHqfrZkVNL7IqHE8hHqKg7kUIf-h72j-AemBHJszCK0D1b85YViVD_JeZi_8yofW8O_3-mrNERmK-b-4OZ_eEtcjKK1eKbAXascY07WV4fWqVoLwq8efQnTaV2srJC9mmb3FSs2azi-Tg7hriECDLuTX_yBw6_LYLQGCC2Q1i39PyKRH1pKuuDE7WwXUl_NUcuAfJ7l1g1e2JkbT61VfeoGfLHrLGlP=w769-h555-no)
 
 Description
 ===========
@@ -21,6 +21,7 @@ Features
 * Simple command-line interface (type "/help" into input window)
 * Settable auto-scrolling of output window
 * Visual cues to help distinguish input from output, commands from command response, errors, etc.
+* Set custom start-of-message and end-of-message text
 
 Installing
 ==========
