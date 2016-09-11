@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
     QObject::connect(item, SIGNAL(connect()), simpleTerminal, SLOT(connect()));
     QObject::connect(item, SIGNAL(disconnect()), simpleTerminal, SLOT(disconnect()));
     QObject::connect(item, SIGNAL(newPort(QString)), simpleTerminal, SLOT(setPort(QString)));
-    QObject::connect(item, SIGNAL(settingsChanged()), simpleTerminal, SLOT(settingsChanged()));
+//    QObject::connect(item, SIGNAL(settingsChanged()), simpleTerminal, SLOT(settingsChanged()));
 
     portsWatcher.start();
 

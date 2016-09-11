@@ -34,16 +34,18 @@ const QMap<QString, CommandParser::CmdFunc> CommandParser::cmdMap = {
     { "/disconnect", CommandParser::cmdDisconnect },
     { "/help", CommandParser::cmdHelp },
     { "/quit", CommandParser::cmdQuit },
+    { "/som", CommandParser::cmdSOM },
 };
 
 //**********************************************************************************************************************
 // @todo: Combine cmdHelpMap and cmdMap?
 const QMap<QString, QStringList> CommandParser::cmdHelpMap = {
     { "/clear", { "", "Clear the screen" } },
-    { "/connect", { "portName", "Connect to port portName" } },
+    { "/connect", { "[portName]", "Connect to port [portName] or current port if not specified" } },
     { "/disconnect", { "", "Disconnect from port" } },
     { "/help", { "[command]", "Get help if [command] is specified. Otherwise, list all commands." } },
     { "/quit", { "", "Quit" } },
+    { "/som", { "[start-of-message]", "Set prefix to text entered if [start-of-message] is specified; Otherwise, None" } },
 };
 
 //**********************************************************************************************************************
@@ -68,7 +70,7 @@ void CommandParser::cmdConnect(SimpleTerminal &st, const QStringList &args)
     }
     else
     {
-        st.setError("Wrong number of arguments");
+        st.connect();
     }
 }
 
@@ -83,6 +85,19 @@ void CommandParser::cmdQuit(SimpleTerminal &st, const QStringList &)
 {
     st.disconnect();
     QApplication::quit();
+}
+
+//**********************************************************************************************************************
+void CommandParser::cmdSOM(SimpleTerminal &st, const QStringList &args)
+{
+    if (args.size() > 0)
+    {
+        st.setSOM(args[0]);
+    }
+    else
+    {
+        st.setSOM();
+    }
 }
 
 //**********************************************************************************************************************

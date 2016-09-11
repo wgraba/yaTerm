@@ -53,6 +53,7 @@ private:
     static void cmdConnect(SimpleTerminal &st, const QStringList &args);
     static void cmdDisconnect(SimpleTerminal &st, const QStringList &);
     static void cmdQuit(SimpleTerminal &st, const QStringList &);
+    static void cmdSOM(SimpleTerminal &st, const QStringList &args);
     static void cmdHelp(SimpleTerminal &st, const QStringList &args);
 };
 

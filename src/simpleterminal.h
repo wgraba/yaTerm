@@ -70,8 +70,8 @@ public:
     Q_INVOKABLE QString getNextHistory();
 
     void modifyDspText(DspType type, const QString &text);
-    void setSOM(QString newSOM);
-    void setEOM(QString newEOM);
+    void setSOM(QString newSOM = QString());
+    void setEOM(QString newEOM = QString());
     Q_INVOKABLE void resetHistoryIdx();
     void setError(const QString &msg);
 

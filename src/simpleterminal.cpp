@@ -52,12 +52,13 @@ SimpleTerminal::SimpleTerminal(QSerialPort *port, QObject *parent) :
     refreshStatusText();
 
     QObject::connect(_port, SIGNAL(readyRead()), this, SLOT(read()));
-//    QObject::connect(_port, SIGNAL(baudRateChanged(qint32,QSerialPort::Directions)), this, SLOT(settingsChanged()));
-//    QObject::connect(_port, SIGNAL(dataBitsChanged(QSerialPort::DataBits)), this, SLOT(settingsChanged()));
-//    QObject::connect(_port, SIGNAL(flowControlChanged(QSerialPort::FlowControl)), this, SLOT(settingsChanged()));
-//    QObject::connect(_port, SIGNAL(parityChanged(QSerialPort::Parity)), this, SLOT(settingsChanged()));
-//    QObject::connect(_port, SIGNAL(stopBitsChanged(QSerialPort::StopBits)), this, SLOT(settingsChanged()));
-//    QObject::connect(this, SIGNAL(eomChanged()), this, SLOT(settingsChanged()));
+    QObject::connect(_port, SIGNAL(baudRateChanged(qint32,QSerialPort::Directions)), this, SLOT(settingsChanged()));
+    QObject::connect(_port, SIGNAL(dataBitsChanged(QSerialPort::DataBits)), this, SLOT(settingsChanged()));
+    QObject::connect(_port, SIGNAL(flowControlChanged(QSerialPort::FlowControl)), this, SLOT(settingsChanged()));
+    QObject::connect(_port, SIGNAL(parityChanged(QSerialPort::Parity)), this, SLOT(settingsChanged()));
+    QObject::connect(_port, SIGNAL(stopBitsChanged(QSerialPort::StopBits)), this, SLOT(settingsChanged()));
+    QObject::connect(this, SIGNAL(somChanged()), this, SLOT(settingsChanged()));
+    QObject::connect(this, SIGNAL(eomChanged()), this, SLOT(settingsChanged()));
 
 }
 
@@ -712,14 +713,10 @@ void SimpleTerminal::refreshStatusText()
 
     QString SOM = "-";
     if (_som.length() > 0)
-    {
         SOM = _som;
-    }
 
     else
-    {
         SOM = "-";
-    }
 
     newText += " " + SOM;
 
@@ -735,14 +732,10 @@ void SimpleTerminal::refreshStatusText()
 
     else
         if (_eom.length() > 0)
-        {
             EOM = _eom;
-        }
 
         else
-        {
             EOM = "-";
-        }
 
     newText += " " + EOM;
 
