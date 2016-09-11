@@ -437,11 +437,11 @@ void SimpleTerminal::restoreSettings()
     if (settings.contains("port/stopbits"))
     {
         float stopbits = settings.value("port/stopbits").toFloat();
-        if (stopbits == 1)
+        if (stopbits == 1.0f)
         {
             _port->setStopBits(QSerialPort::OneStop);
         }
-        else if (stopbits == 1.5)
+        else if (stopbits == 1.5f)
         {
             _port->setStopBits(QSerialPort::OneAndHalfStop);
         }
@@ -506,9 +506,12 @@ void SimpleTerminal::saveSettings() const
             settings.setValue("port/databits", 7);
             break;
 
-        default:
         case QSerialPort::Data8:
             settings.setValue("port/databits", 8);
+            break;
+
+        case QSerialPort::UnknownDataBits:
+            qWarning() << "Unhandled Data Bits to save";
             break;
     }
 
@@ -523,16 +526,20 @@ void SimpleTerminal::saveSettings() const
             settings.setValue("port/parity", "Odd");
             break;
 
-        default:
         case QSerialPort::NoParity:
             settings.setValue("port/parity", "None");
+            break;
+
+        case QSerialPort::UnknownParity:
+        case QSerialPort::MarkParity:
+        case QSerialPort::SpaceParity:
+            qWarning() << "Unhandled parity to save";
             break;
     }
 
     // Stop Bits
     switch (_port->stopBits())
     {
-        default:
         case QSerialPort::OneStop:
             settings.setValue("port/stopbits", 1.0);
             break;
@@ -544,12 +551,15 @@ void SimpleTerminal::saveSettings() const
         case QSerialPort::TwoStop:
             settings.setValue("port/stopbits", 2.0);
             break;
+
+        case QSerialPort::UnknownDataBits:
+            qWarning() << "Unhandled parity to save";
+            break;
     }
 
     // Flow Control
     switch (_port->flowControl())
     {
-        default:
         case QSerialPort::NoFlowControl:
             settings.setValue("port/flowcontrol", "None");
             break;
@@ -561,6 +571,9 @@ void SimpleTerminal::saveSettings() const
         case QSerialPort::SoftwareControl:
             settings.setValue("port/flowcontrol", "Software");
             break;
+
+        case QSerialPort::UnknownFlowControl:
+            qWarning() << "Unhandled Flow Control to save";
     }
 
     // SOM
@@ -626,7 +639,7 @@ void SimpleTerminal::refreshStatusText()
             dataBits = "8";
             break;
 
-        default:
+        case QSerialPort::UnknownDataBits:
             dataBits = "-";
             break;
     }
@@ -646,7 +659,9 @@ void SimpleTerminal::refreshStatusText()
             parity = "O";
             break;
 
-        default:
+        case QSerialPort::UnknownParity:
+        case QSerialPort::MarkParity:
+        case QSerialPort::SpaceParity:
             parity = "-";
             break;
     }
@@ -666,7 +681,7 @@ void SimpleTerminal::refreshStatusText()
             stopBits = "2";
             break;
 
-        default:
+        case QSerialPort::UnknownStopBits:
             stopBits = '-';
             break;
     }
@@ -688,7 +703,7 @@ void SimpleTerminal::refreshStatusText()
             flowControl = "None";
             break;
 
-        default:
+        case QSerialPort::UnknownFlowControl:
             flowControl = "-";
             break;
     }
