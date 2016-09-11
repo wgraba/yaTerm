@@ -1,3 +1,8 @@
+0.2.1
+=====
+* Added custom Start-of-Message (SOM) and End-of-Message (EOM)
+* Updated to Qt 5.7
+
 0.2.0
 =====
 * Added storage of settings like font and application windows size/position
