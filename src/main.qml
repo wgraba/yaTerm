@@ -167,6 +167,8 @@ ApplicationWindow {
         anchors.right: parent.right
         anchors.bottom: parent.bottom
 
+        placeholderText: "Enter command or text to send followed by Enter"
+
         Keys.onEnterPressed: root.inputEntered()
         Keys.onReturnPressed: root.inputEntered()
         Keys.onUpPressed: { text = simpleTerminal.getPrevHistory() }
