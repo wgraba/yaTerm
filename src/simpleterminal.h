@@ -82,8 +82,10 @@ signals:
     void somChanged();
     void eomChanged();
     void maxDspTxtCharsChanged();
-    void insertDisplayText(QString text);
-    void appendDisplayText(QString text);
+    void startMsg();
+    void appendMsg(QString text);
+    void endMsg();
+    void newMsg(QString text);
     void clearDisplayText();
 
 public slots:

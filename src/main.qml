@@ -199,26 +199,37 @@ ApplicationWindow {
 
         Connections {
             target: simpleTerminal
-            onInsertDisplayText: {
-                if (consoleOutput.length > simpleTerminal.maxDspTxtChars) {
-                    consoleOutput.remove(0, consoleOutput.length - simpleTerminal.maxDspTxtChars)
-                }
 
-                consoleOutput.insert(consoleOutput.length, text)
-                if (consoleOutput.autoscroll) {
-                    consoleOutput.cursorPosition = consoleOutput.length
-                }
+            onStartMsg: {
+                consoleOutput.coerce_length()
+
+                consoleOutput.append("<span>")
+
+                consoleOutput.auto_scroll()
             }
 
-            onAppendDisplayText: {
-                if (consoleOutput.length > simpleTerminal.maxDspTxtChars) {
-                    consoleOutput.remove(0, consoleOutput.length - simpleTerminal.maxDspTxtChars)
-                }
+            onEndMsg: {
+                consoleOutput.coerce_length()
+
+                consoleOutput.insert(consoleOutput.length, "</span>")
+
+                consoleOutput.auto_scroll()
+            }
+
+            onAppendMsg: {
+                consoleOutput.coerce_length()
+
+                consoleOutput.insert(consoleOutput.length, text)
+
+                consoleOutput.auto_scroll()
+            }
+
+            onNewMsg: {
+                consoleOutput.coerce_length()
 
                 consoleOutput.append(text)
-                if (consoleOutput.autoscroll) {
-                    consoleOutput.cursorPosition = consoleOutput.length
-                }
+
+                consoleOutput.auto_scroll()
             }
 
             onClearDisplayText: {
@@ -233,6 +244,18 @@ ApplicationWindow {
         font.family: "Courier New"
         font.pointSize: 10
         font.weight: Font.Normal
+
+        function coerce_length() {
+            if (consoleOutput.length > simpleTerminal.maxDspTxtChars) {
+                consoleOutput.remove(0, consoleOutput.length - simpleTerminal.maxDspTxtChars)
+            }
+        }
+
+        function auto_scroll() {
+            if (consoleOutput.autoscroll) {
+                consoleOutput.cursorPosition = consoleOutput.length
+            }
+        }
 
         Settings {
             category: "ConsoleOutput"

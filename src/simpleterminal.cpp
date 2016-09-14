@@ -71,113 +71,122 @@ SimpleTerminal::~SimpleTerminal()
 //**********************************************************************************************************************
 void SimpleTerminal::modifyDspText(DspType type, const QString &text)
 {
-//    static bool isReading = false;
-//    if (isReading && type != DspType::READ_MESSAGE)
-//        isReading = false;
-
-    static bool newLine = true;
-    if (type != DspType::READ_MESSAGE)
-        newLine = true;
-
-    QString sanitizedText = text.toHtmlEscaped();
-
     // Format text according to type of message
+    static bool new_msg = true;
+    static QString eom_buffer("");
     switch(type)
     {
         case DspType::READ_MESSAGE:
         {
-            static QString end_msg("");
-
-            if (_eom.length() > 1 && !newLine && end_msg.length() > 0)
+            if (new_msg)
             {
-                // EOM split across reads?
+                new_msg = false;
+                emit startMsg();
+            }
 
-                QString endStr(end_msg + sanitizedText.left(_eom.length() - 1));
-                sanitizedText.remove(0, _eom.length() - 1);
+            QString start_of_msg = text.left(_eom.length());
 
-                int eomIndex = endStr.indexOf(_eom);
-                if (eomIndex > -1)
+            // Find EOMs across messages
+            eom_buffer = eom_buffer.right(_eom.length()) + start_of_msg;
+            int pos = eom_buffer.indexOf(_eom);
+            int chop_len = 0;
+            if (pos > -1)
+            {
+                chop_len = (pos + _eom.length()) - (eom_buffer.length() - start_of_msg.length());
+                if (chop_len < 0)
+                    chop_len = 0;
+            }
+
+            QString old_msg_text = text.left(chop_len);
+            QString new_msg_text = text.mid(chop_len, text.length() - chop_len);
+
+            if (old_msg_text.length() > 0)
+                emit appendMsg(old_msg_text.toHtmlEscaped());
+
+            if (pos > -1)
+            {
+                new_msg = true;
+                emit endMsg();
+            }
+
+            // Find EOMs within this message
+            QStringList messages = new_msg_text.split(_eom, QString::SkipEmptyParts, Qt::CaseSensitive);
+            for (int i = 0; i < messages.length(); ++i)
+            {
+                if (i == (messages.length() - 1))
                 {
-                    emit insertDisplayText(endStr.mid(end_msg.length(),
-                                                      _eom.length() - (end_msg.length() - eomIndex)));
-                    newLine = true;
+                    new_msg = false;
+                    emit startMsg();
+                    emit appendMsg(messages[i]);
                 }
                 else
                 {
-                    emit insertDisplayText(endStr.mid(end_msg.length()));
+                    new_msg = true;
+                    emit newMsg(messages[i]);
                 }
             }
 
-            // Find EOMs
-            QStringList textList = sanitizedText.split(_eom);
-
-            // First break at Line Feeds
-            for (int i = 0; i < textList.length(); ++i)
-            {
-                textList[i].replace("\n", "\n<br>");
-            }
-
-            if (newLine)
-                emit appendDisplayText(textList.at(0));
-            else
-                emit insertDisplayText(textList.at(0));
-
-            for (int i = 1; i < textList.length(); ++i)
-            {
-                emit insertDisplayText(_eom);
-                if (textList[i].length() > 0)
-                    emit appendDisplayText(textList[i]);
-            }
-
-            if (textList[textList.length() - 1] == "")
-            {
-                newLine = true;
-                end_msg = "";
-            }
-            else
-            {
-                newLine = false;
-                end_msg = sanitizedText.right(_eom.length() - 1);
-            }
+            eom_buffer = new_msg_text.right(_eom.length());
 
             break;
         }
 
         case DspType::WRITE_MESSAGE:
         {
-            QString msg = "<br><span><b>" + sanitizedText + "</b></span>";
-//            QString msg = "<span><b>" + sanitizedText + "</b></span>";
+            QString msg = "<span><b>" + text.toHtmlEscaped() + "</b></span>";
 
-            emit appendDisplayText(msg);
+            if (!new_msg)
+            {
+                new_msg = true;
+                emit endMsg();
+            }
+
+            emit newMsg(msg);
 
             break;
         }
 
         case DspType::COMMAND:
         {
-            QString msg = "<br><span style = \"color: blue;\"><b>$ " + sanitizedText + "</b></span>";
-//            QString msg = "<span style = \"color: blue;\"><b>$ " + sanitizedText + "</b></span>";
+            QString msg = "<span style = \"color: blue;\"><b>$ " + text.toHtmlEscaped() + "</b></span>";
 
-            emit appendDisplayText(msg);
+            if (!new_msg)
+            {
+                new_msg = true;
+                emit endMsg();
+            }
+
+            emit newMsg(msg);
 
             break;
         }
 
         case DspType::COMMAND_RSP:
         {
-//            QString msg = "<br><span style = \"color: blue;\">" + text + "</span>";
-            QString msg = "<span style = \"color: blue;\">" + text + "</span>";
+            QString msg = "<span style = \"color: green;\">" + text + "</span>";
 
-            emit appendDisplayText(msg);
+            if (!new_msg)
+            {
+                new_msg = true;
+                emit endMsg();
+            }
+
+            emit newMsg(msg);
 
             break;
         }
 
         case DspType::ERROR:
         {
-            QString msg = "<br><span style = \"color: red;\">ERROR: " + text + "</span>";
+            QString msg = "<span style = \"color: red;\">ERROR: " + text + "</span>";
 
-            emit appendDisplayText(msg);
+            if (!new_msg)
+            {
+                new_msg = true;
+                emit endMsg();
+            }
+
+            emit newMsg(msg);
 
             break;
         }
