@@ -72,61 +72,63 @@ SimpleTerminal::~SimpleTerminal()
 void SimpleTerminal::modifyDspText(DspType type, const QString &text)
 {
     // Format text according to type of message
-    static bool new_msg = true;
-    static QString eom_buffer("");
+    static bool is_new_msg = true;
     switch(type)
     {
         case DspType::READ_MESSAGE:
         {
-            if (new_msg)
+            // Parse message and look for EOM string(s) - there could be 0 - n in this message
+            // Emit approriate details to system - end of message? Start of message? Append message?
+            QString msg = text.toHtmlEscaped();
+//            QString msg = text;
+            QString new_msg; // Message queue
+            static bool is_eom_detected = false;
+            static int eom_index = 0; // Keeps track of what part of EOM string has been detected
+            for (int i = 0; i < msg.length(); ++i)
             {
-                new_msg = false;
-                emit startMsg();
-            }
 
-            QString start_of_msg = text.left(_eom.length());
+                new_msg.append(msg[i]);
 
-            // Find EOMs across messages
-            eom_buffer = eom_buffer.right(_eom.length()) + start_of_msg;
-            int pos = eom_buffer.indexOf(_eom);
-            int chop_len = 0;
-            if (pos > -1)
-            {
-                chop_len = (pos + _eom.length()) - (eom_buffer.length() - start_of_msg.length());
-                if (chop_len < 0)
-                    chop_len = 0;
-            }
-
-            QString old_msg_text = text.left(chop_len);
-            QString new_msg_text = text.mid(chop_len, text.length() - chop_len);
-
-            if (old_msg_text.length() > 0)
-                emit appendMsg(old_msg_text.toHtmlEscaped());
-
-            if (pos > -1)
-            {
-                new_msg = true;
-                emit endMsg();
-            }
-
-            // Find EOMs within this message
-            QStringList messages = new_msg_text.split(_eom, QString::SkipEmptyParts, Qt::CaseSensitive);
-            for (int i = 0; i < messages.length(); ++i)
-            {
-                if (i == (messages.length() - 1))
+                // Starting a new message or continuing an old message?
+                if (is_new_msg)
                 {
-                    new_msg = false;
+                    is_new_msg = false;
                     emit startMsg();
-                    emit appendMsg(messages[i]);
                 }
-                else
+
+                if (msg[i] == _eom[eom_index])
                 {
-                    new_msg = true;
-                    emit newMsg(messages[i]);
+                    // Possible EOM string detected
+                    is_eom_detected = true;
+                    eom_index++;
+
+                    if (eom_index >= _eom.length())
+                    {
+                        // Full EOM string detected!
+                        emit appendMsg(new_msg);
+                        new_msg.clear();
+
+                        is_new_msg = true;
+                        emit endMsg();
+
+                        is_eom_detected = false;
+                        eom_index = 0;
+                    }
+                }
+                else if (is_eom_detected)
+                {
+                    // Full EOM string not realized - start over
+                    is_eom_detected = false;
+                    eom_index = 0;
                 }
             }
 
-            eom_buffer = new_msg_text.right(_eom.length());
+            if (new_msg.length() > 0)
+            {
+                // Emit remaining character in queue
+                emit appendMsg(new_msg);
+            }
+
 
             break;
         }
@@ -135,9 +137,9 @@ void SimpleTerminal::modifyDspText(DspType type, const QString &text)
         {
             QString msg = "<span><b>" + text.toHtmlEscaped() + "</b></span>";
 
-            if (!new_msg)
+            if (!is_new_msg)
             {
-                new_msg = true;
+                is_new_msg = true;
                 emit endMsg();
             }
 
@@ -150,9 +152,9 @@ void SimpleTerminal::modifyDspText(DspType type, const QString &text)
         {
             QString msg = "<span style = \"color: blue;\"><b>$ " + text.toHtmlEscaped() + "</b></span>";
 
-            if (!new_msg)
+            if (!is_new_msg)
             {
-                new_msg = true;
+                is_new_msg = true;
                 emit endMsg();
             }
 
@@ -165,9 +167,9 @@ void SimpleTerminal::modifyDspText(DspType type, const QString &text)
         {
             QString msg = "<span style = \"color: green;\">" + text + "</span>";
 
-            if (!new_msg)
+            if (!is_new_msg)
             {
-                new_msg = true;
+                is_new_msg = true;
                 emit endMsg();
             }
 
@@ -180,9 +182,9 @@ void SimpleTerminal::modifyDspText(DspType type, const QString &text)
         {
             QString msg = "<span style = \"color: red;\">ERROR: " + text + "</span>";
 
-            if (!new_msg)
+            if (!is_new_msg)
             {
-                new_msg = true;
+                is_new_msg = true;
                 emit endMsg();
             }
 
@@ -600,7 +602,7 @@ void SimpleTerminal::saveSettings() const
 void SimpleTerminal::read()
 {
     QByteArray data = _port->readAll();
-//    qDebug() << "Read: " << data << data.toHex();
+    qDebug() << "Read: " << data << data.toHex();
 
     modifyDspText(DspType::READ_MESSAGE, QString(data));
 }
