@@ -204,6 +204,7 @@ ApplicationWindow {
                 consoleOutput.coerce_length()
 
                 consoleOutput.append("<span>")
+                simpleTerminal.is_msg_open = true
 
                 consoleOutput.auto_scroll()
             }
@@ -212,6 +213,7 @@ ApplicationWindow {
                 consoleOutput.coerce_length()
 
                 consoleOutput.insert(consoleOutput.length, "</span>")
+                simpleTerminal.is_msg_open = false
 
                 consoleOutput.auto_scroll()
             }

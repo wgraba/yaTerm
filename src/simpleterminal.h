@@ -39,6 +39,7 @@ class SimpleTerminal : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(int maxDspTxtChars MEMBER _maxDisplayTextChars NOTIFY maxDspTxtCharsChanged)
+    Q_PROPERTY(bool is_msg_open MEMBER _is_msg_open)
     Q_PROPERTY(QString statusText READ statusText NOTIFY statusTextChanged)
     Q_PROPERTY(QString errorText READ errorText NOTIFY errorTextChanged)
     Q_PROPERTY(bool connState READ isConnected NOTIFY connStateChanged)
@@ -48,6 +49,7 @@ class SimpleTerminal : public QObject
 public:
     enum class DspType
     {
+        NONE,
         READ_MESSAGE,
         WRITE_MESSAGE,
         COMMAND,
@@ -55,7 +57,7 @@ public:
         ERROR
     };
 
-    explicit SimpleTerminal(QSerialPort *port, QObject *parent = 0);
+    explicit SimpleTerminal(QSerialPort *port, QObject *parent = nullptr);
     ~SimpleTerminal();
 
     QString statusText() const;
@@ -119,6 +121,7 @@ private:
     int _inputHistoryIdx;
 
     int _maxDisplayTextChars = 1024 * 8;
+    bool _is_msg_open;  // Actively writing message to console
 
     CommandParser *_cmdParser;
 

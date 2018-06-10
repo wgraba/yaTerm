@@ -36,10 +36,11 @@ SimpleTerminal::SimpleTerminal(QSerialPort *port, QObject *parent) :
     QObject(parent),
     _statusText(QString()),
     _port(port),
-    _som(),
+    _som(""),
     _eom("\r"),
     _inputHistory(),
     _inputHistoryIdx(-1),
+    _is_msg_open(false),
     _cmdParser(nullptr)
 {
     Q_CHECK_PTR(_port);
@@ -72,63 +73,69 @@ SimpleTerminal::~SimpleTerminal()
 void SimpleTerminal::modifyDspText(DspType type, const QString &text)
 {
     // Format text according to type of message
-    static bool is_new_msg = true;
+    static DspType last_type = DspType::NONE;
+
+    // Need to end the last message?
+    if (last_type != type && _is_msg_open)
+        emit endMsg();
+
     switch(type)
     {
         case DspType::READ_MESSAGE:
         {
+            static QString prev_msg("");
+
             // Parse message and look for EOM string(s) - there could be 0 - n in this message
             // Emit approriate details to system - end of message? Start of message? Append message?
-            QString msg = text.toHtmlEscaped();
-//            QString msg = text;
-            QString new_msg; // Message queue
-            static bool is_eom_detected = false;
-            static int eom_index = 0; // Keeps track of what part of EOM string has been detected
-            for (int i = 0; i < msg.length(); ++i)
+            QString msg(text.toHtmlEscaped());
+
+            // Find all occurences of EOM
+            int start_pos = 0;
+            int eom_pos = 0;
+            do
             {
-
-                new_msg.append(msg[i]);
-
-                // Starting a new message or continuing an old message?
-                if (is_new_msg)
+                QString shared_msg(prev_msg + msg);
+                eom_pos = shared_msg.indexOf(_eom, start_pos);
+                if (eom_pos >= 0)
                 {
-                    is_new_msg = false;
-                    emit startMsg();
-                }
+                    // Found EOM!
+                    if (!_is_msg_open)
+                        emit startMsg();
 
-                if (msg[i] == _eom[eom_index])
+                    if (eom_pos < prev_msg.length())
+                        // Found EOM start before start of actual message; need to correct start position
+                        // to be first character after previous message
+                        start_pos += prev_msg.length();
+
+                    int len = (eom_pos + _eom.length()) - start_pos;
+
+                    emit appendMsg(shared_msg.mid(start_pos, len));
+                    emit endMsg();
+
+                    start_pos = eom_pos + _eom.length();
+                }
+                else if (start_pos < shared_msg.length())
                 {
-                    // Possible EOM string detected
-                    is_eom_detected = true;
-                    eom_index++;
+                    // No EOMs left; send rest of message
+                    if (!_is_msg_open)
+                        emit startMsg();
 
-                    if (eom_index >= _eom.length())
-                    {
-                        // Full EOM string detected!
-                        emit appendMsg(new_msg);
-                        new_msg.clear();
-
-                        is_new_msg = true;
-                        emit endMsg();
-
-                        is_eom_detected = false;
-                        eom_index = 0;
-                    }
+                    emit appendMsg(shared_msg.mid(start_pos));
                 }
-                else if (is_eom_detected)
-                {
-                    // Full EOM string not realized - start over
-                    is_eom_detected = false;
-                    eom_index = 0;
-                }
-            }
+            } while(eom_pos >= 0);
 
-            if (new_msg.length() > 0)
+            // Keep end of msg for next time
+            if (_eom.length() > 0)
             {
-                // Emit remaining character in queue
-                emit appendMsg(new_msg);
-            }
+                int num_prev_msg_keep = _eom.length() - msg.length();
+                if (num_prev_msg_keep > 0)
+                    prev_msg = prev_msg.right(num_prev_msg_keep) + msg;
 
+                else
+                    prev_msg = msg.right(_eom.length() - 1);
+            }
+            else
+                prev_msg = "";
 
             break;
         }
@@ -136,13 +143,6 @@ void SimpleTerminal::modifyDspText(DspType type, const QString &text)
         case DspType::WRITE_MESSAGE:
         {
             QString msg = "<span><b>" + text.toHtmlEscaped() + "</b></span>";
-
-            if (!is_new_msg)
-            {
-                is_new_msg = true;
-                emit endMsg();
-            }
-
             emit newMsg(msg);
 
             break;
@@ -151,13 +151,6 @@ void SimpleTerminal::modifyDspText(DspType type, const QString &text)
         case DspType::COMMAND:
         {
             QString msg = "<span style = \"color: blue;\"><b>$ " + text.toHtmlEscaped() + "</b></span>";
-
-            if (!is_new_msg)
-            {
-                is_new_msg = true;
-                emit endMsg();
-            }
-
             emit newMsg(msg);
 
             break;
@@ -166,13 +159,6 @@ void SimpleTerminal::modifyDspText(DspType type, const QString &text)
         case DspType::COMMAND_RSP:
         {
             QString msg = "<span style = \"color: green;\">" + text + "</span>";
-
-            if (!is_new_msg)
-            {
-                is_new_msg = true;
-                emit endMsg();
-            }
-
             emit newMsg(msg);
 
             break;
@@ -181,18 +167,16 @@ void SimpleTerminal::modifyDspText(DspType type, const QString &text)
         case DspType::ERROR:
         {
             QString msg = "<span style = \"color: red;\">ERROR: " + text + "</span>";
-
-            if (!is_new_msg)
-            {
-                is_new_msg = true;
-                emit endMsg();
-            }
-
             emit newMsg(msg);
 
             break;
         }
+
+        default:
+            break;
     }
+
+    last_type = type;
 }
 
 //**********************************************************************************************************************
