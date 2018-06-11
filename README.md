@@ -11,7 +11,7 @@ Description
 A simple program that can be used for serial communication. The main goals of this 
 project is to replace other serial terminal programs that I'm not quite happy 
 with and to learn GUI programming with QML and Qt. As a consequence, this
-is a work-in-progress and pretty rough.
+is a work-in-progress and may be pretty rough.
 
 Features
 ========
@@ -31,11 +31,7 @@ This is dependent on the OS.
 Windows
 -------
 
-* [Build](#building) from source or download pre-built binaries at 
-[my Bintray project](https://bintray.com/wgraba/windows/yaTerm/view).
-* Currently, there is no installer; unzip content to desired directory. Install Visual Studio C++
-  redistributable (get from Microsoft web site or from unzipped contents).
-* Run yaTerm.exe and enjoy!
+TBD. The best starting point right now is to [build](#building) from source.
 
 Linux
 -----
@@ -58,7 +54,7 @@ available as part of the [Qt SDK](http://qt-project.org/downloads)).
 Prerequesites
 -------------
 
-* Qt 5.7+ (Standard Qt + Qt Quick Controls + QtSerialPort)
+* Qt 5.11+ (Standard Qt + Qt Quick Controls + QtSerialPort)
 * Appropriate compiler such as GCC 4.8+
 
 The easiest way to get all the prerequisites is to download the [Qt SDK](http://qt-project.org/downloads).
