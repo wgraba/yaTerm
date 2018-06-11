@@ -523,6 +523,20 @@ ApplicationWindow {
             settingsChanged()
         }
 
+        Settings {
+            category: "CommSettings"
+            property alias port: portCombo.currentText
+            property alias baudrate: baudRateCombo.currentText
+            property alias data_bits: dataBitsCombo.currentText
+            property alias parity: parityCombo.currentText
+            property alias stop_bits: stopCombo.currentText
+            property alias flowcontrol: flowCombo.currentText
+            property alias som: somCombo.currentText
+            property alias som_custom: somCustom.text
+            property alias eom: eomCombo.currentText
+            property alias eom_custom: eomCustom.text
+        }
+
         GridLayout {
             id: settingsLayout
             columns: 3
@@ -579,23 +593,12 @@ ApplicationWindow {
                 id: somCombo
                 model: ["None", "@", "#", "Custom..."]
                 currentIndex: 0
-
-                onActivated: {
-                    if (index == 3)
-                    {
-                        somCustom.enabled = true
-                    }
-
-                    else
-                    {
-                        somCustom.enabled = false
-                    }
-                }
             }
             TextField {
                 id: somCustom
                 placeholderText: qsTr("Custom SOM...")
-                enabled: false
+                enabled: somCombo.currentIndex == 3
+                maximumLength: 4
             }
 
             Label { text: "<strong>End-of-Message Terminator</strong>" }
@@ -603,22 +606,12 @@ ApplicationWindow {
                 id: eomCombo
                 model: ["CR", "LF", "CR+LF", "None", "Custom..."]
                 currentIndex: 0
-
-                onActivated: {
-                    if (index == 4)
-                    {
-                        eomCustom.enabled = true
-                    }
-                    else
-                    {
-                        eomCustom.enabled = false
-                    }
-                }
             }
             TextField {
                 id: eomCustom
                 placeholderText: qsTr("Custom EOM...")
-                enabled: false
+                enabled: eomCombo.currentIndex == 4
+                maximumLength: 4
             }
         }
     }
